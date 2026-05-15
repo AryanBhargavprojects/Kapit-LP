@@ -1,0 +1,62 @@
+---
+const links = {
+  Product: [
+    { label: 'Docs', href: '/docs' },
+    { label: 'Pricing', href: '/pricing' },
+    { label: 'Changelog', href: '/changelog' },
+    { label: 'Status', href: 'https://status.kapit.dev' },
+  ],
+  Developers: [
+    { label: 'API Reference', href: '/docs/api' },
+    { label: 'OpenAPI Spec', href: '/openapi.json' },
+    { label: '/llms.txt', href: '/llms.txt' },
+    { label: 'MCP Server', href: '/docs/mcp' },
+  ],
+  Company: [
+    { label: 'About', href: '/about' },
+    { label: 'Blog', href: '/blog' },
+    { label: 'GitHub', href: 'https://github.com/aryanbhargav/kapit' },
+    { label: 'Contact', href: '/contact' },
+  ],
+  Legal: [
+    { label: 'Terms', href: '/terms' },
+    { label: 'Privacy', href: '/privacy' },
+    { label: 'Security', href: '/security' },
+  ],
+};
+---
+<footer class="py-16 bg-[#0A0A0A]">
+  <div class="max-w-6xl mx-auto px-6">
+    <!-- Top row -->
+    <div class="flex items-center justify-between mb-12">
+      <span class="text-[#EDEDED] font-bold text-lg tracking-tight">kapit</span>
+      <span class="text-xs font-mono text-[#6E6E6E]">v1 · api.kapit.dev</span>
+    </div>
+
+    <!-- Link grid -->
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-8 mb-12">
+      {Object.entries(links).map(([category, items]) => (
+        <div>
+          <p class="text-xs font-mono uppercase tracking-wider text-[#6E6E6E] mb-4">{category}</p>
+          <ul class="flex flex-col gap-2.5">
+            {items.map(item => (
+              <li>
+                <a
+                  href={item.href}
+                  class="text-sm text-[#A1A1A1] hover:text-[#EDEDED] transition-colors"
+                >
+                  {item.label}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </div>
+      ))}
+    </div>
+
+    <!-- Bottom row -->
+    <div class="border-t border-[#262626] pt-8 text-center">
+      <p class="text-xs text-[#6E6E6E]">© 2026 Kapit. Built for the agentic web.</p>
+    </div>
+  </div>
+</footer>

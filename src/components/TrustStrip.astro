@@ -1,0 +1,24 @@
+---
+const stats = [
+  { value: '1,200+', label: 'developers' },
+  { value: '2.4M', label: 'requests served' },
+  { value: '3', label: 'asset classes' },
+  { value: '1', label: 'API key' },
+];
+---
+<section class="py-12 border-b border-[#262626]">
+  <div class="max-w-6xl mx-auto px-6">
+    <p class="text-center text-xs text-[#6E6E6E] uppercase tracking-widest mb-6" style="font-family: 'JetBrains Mono', monospace;">Built for developers shipping AI agents</p>
+    <div class="flex items-center justify-center gap-0 flex-wrap">
+      {stats.map((stat, i) => (
+        <>
+          <div class="flex flex-col items-center px-8 py-2">
+            <span class="text-2xl font-bold text-[#EDEDED]">{stat.value}</span>
+            <span class="text-xs text-[#6E6E6E]">{stat.label}</span>
+          </div>
+          {i < stats.length - 1 && <div class="h-8 w-px bg-[#262626]" />}
+        </>
+      ))}
+    </div>
+  </div>
+</section>

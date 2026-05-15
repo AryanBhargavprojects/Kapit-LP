@@ -1,0 +1,169 @@
+---
+---
+<section class="py-24 border-b border-[#262626]">
+  <div class="max-w-6xl mx-auto px-6">
+
+    <!-- Header -->
+    <div class="mb-10">
+      <h2 class="text-3xl lg:text-4xl font-bold text-[#EDEDED] mb-4 tracking-tight" style="font-family: Inter, sans-serif;">
+        Three asset classes. One API key. One response envelope.
+      </h2>
+      <p class="text-[#A1A1A1] text-lg max-w-2xl">
+        Stop juggling Polygon, CoinGecko, and a Polymarket scraper. Get all of it through <code class="text-[#EDEDED] bg-[#1C1C1C] border border-[#262626] rounded px-1.5 py-0.5 text-sm" style="font-family: 'JetBrains Mono', monospace;">api.kapit.dev</code>.
+      </p>
+    </div>
+
+    <!-- Tabs -->
+    <div>
+      <!-- Tab buttons -->
+      <div class="flex gap-0 border-b border-[#262626] mb-8">
+        <button
+          class="tab-btn px-5 py-3 text-sm font-medium transition-colors border-b-2 -mb-px"
+          data-tab="stocks"
+          style="font-family: Inter, sans-serif;"
+        >Stocks</button>
+        <button
+          class="tab-btn px-5 py-3 text-sm font-medium transition-colors border-b-2 -mb-px"
+          data-tab="crypto"
+          style="font-family: Inter, sans-serif;"
+        >Crypto</button>
+        <button
+          class="tab-btn px-5 py-3 text-sm font-medium transition-colors border-b-2 -mb-px"
+          data-tab="prediction"
+          style="font-family: Inter, sans-serif;"
+        >Prediction Markets</button>
+      </div>
+
+      <!-- Tab panels -->
+
+      <!-- Stocks -->
+      <div class="tab-panel grid lg:grid-cols-2 gap-10 items-start" data-tab="stocks">
+        <div class="flex flex-col gap-5">
+          <div>
+            <span class="inline-block text-xs text-[#A1A1A1] bg-[#141414] border border-[#262626] rounded px-2.5 py-1.5 mb-4" style="font-family: 'JetBrains Mono', monospace;">GET /v1/stocks/quotes/{"{symbol}"}</span>
+            <ul class="flex flex-col gap-2">
+              <li class="flex items-start gap-2 text-sm text-[#A1A1A1]">
+                <span class="text-[#00D26A] mt-0.5 flex-shrink-0">→</span>
+                Real-time quotes (FMP + Twelve Data fallback)
+              </li>
+              <li class="flex items-start gap-2 text-sm text-[#A1A1A1]">
+                <span class="text-[#00D26A] mt-0.5 flex-shrink-0">→</span>
+                Pre/post-market data
+              </li>
+              <li class="flex items-start gap-2 text-sm text-[#A1A1A1]">
+                <span class="text-[#00D26A] mt-0.5 flex-shrink-0">→</span>
+                OHLC + volume + market cap
+              </li>
+            </ul>
+          </div>
+          <a href="/docs/stocks" class="text-[#A1A1A1] text-sm hover:text-[#EDEDED] transition-colors">See reference →</a>
+        </div>
+        <div class="bg-[#141414] border border-[#262626] rounded-xl overflow-hidden" style="box-shadow: 0 1px 0 rgba(255,255,255,0.04);">
+          <div class="px-4 py-2.5 border-b border-[#262626] flex items-center gap-2">
+            <span class="w-1.5 h-1.5 rounded-full bg-[#3A3A3A]"></span>
+            <span class="w-1.5 h-1.5 rounded-full bg-[#3A3A3A]"></span>
+            <span class="w-1.5 h-1.5 rounded-full bg-[#3A3A3A]"></span>
+          </div>
+          <pre class="p-4 text-xs overflow-x-auto" style="font-family: 'JetBrains Mono', monospace;"><code><span class="text-[#6E6E6E]">$ </span><span class="text-[#EDEDED]">curl https://api.kapit.dev/v1/stocks/quotes/AAPL \</span>
+<span class="text-[#EDEDED]">    -H "Authorization: Bearer $KAPIT_KEY"</span></code></pre>
+        </div>
+      </div>
+
+      <!-- Crypto -->
+      <div class="tab-panel grid lg:grid-cols-2 gap-10 items-start" data-tab="crypto">
+        <div class="flex flex-col gap-5">
+          <div>
+            <span class="inline-block text-xs text-[#A1A1A1] bg-[#141414] border border-[#262626] rounded px-2.5 py-1.5 mb-4" style="font-family: 'JetBrains Mono', monospace;">GET /v1/crypto/prices/{"{symbol}"}</span>
+            <ul class="flex flex-col gap-2">
+              <li class="flex items-start gap-2 text-sm text-[#A1A1A1]">
+                <span class="text-[#00D26A] mt-0.5 flex-shrink-0">→</span>
+                10,000+ tokens via CoinGecko
+              </li>
+              <li class="flex items-start gap-2 text-sm text-[#A1A1A1]">
+                <span class="text-[#00D26A] mt-0.5 flex-shrink-0">→</span>
+                Multi-currency price data
+              </li>
+              <li class="flex items-start gap-2 text-sm text-[#A1A1A1]">
+                <span class="text-[#00D26A] mt-0.5 flex-shrink-0">→</span>
+                24h change + market cap + volume
+              </li>
+            </ul>
+            <p class="text-xs text-[#6E6E6E] mt-3 flex items-center gap-1.5">
+              <span class="text-[#F7B500]">Note:</span>
+              <span>symbol is CoinGecko ID — use <code style="font-family: 'JetBrains Mono', monospace;" class="text-[#EDEDED]">bitcoin</code>, not <code style="font-family: 'JetBrains Mono', monospace;" class="text-[#6E6E6E] line-through">BTC</code></span>
+            </p>
+          </div>
+          <a href="/docs/crypto" class="text-[#A1A1A1] text-sm hover:text-[#EDEDED] transition-colors">See reference →</a>
+        </div>
+        <div class="bg-[#141414] border border-[#262626] rounded-xl overflow-hidden" style="box-shadow: 0 1px 0 rgba(255,255,255,0.04);">
+          <div class="px-4 py-2.5 border-b border-[#262626] flex items-center gap-2">
+            <span class="w-1.5 h-1.5 rounded-full bg-[#3A3A3A]"></span>
+            <span class="w-1.5 h-1.5 rounded-full bg-[#3A3A3A]"></span>
+            <span class="w-1.5 h-1.5 rounded-full bg-[#3A3A3A]"></span>
+          </div>
+          <pre class="p-4 text-xs overflow-x-auto" style="font-family: 'JetBrains Mono', monospace;"><code><span class="text-[#6E6E6E]">$ </span><span class="text-[#EDEDED]">curl https://api.kapit.dev/v1/crypto/prices/bitcoin \</span>
+<span class="text-[#EDEDED]">    -H "Authorization: Bearer $KAPIT_KEY"</span></code></pre>
+        </div>
+      </div>
+
+      <!-- Prediction Markets -->
+      <div class="tab-panel grid lg:grid-cols-2 gap-10 items-start" data-tab="prediction">
+        <div class="flex flex-col gap-5">
+          <div>
+            <span class="inline-block text-xs text-[#A1A1A1] bg-[#141414] border border-[#262626] rounded px-2.5 py-1.5 mb-4" style="font-family: 'JetBrains Mono', monospace;">GET /v1/polymarket/markets/{"{market_id}"}</span>
+            <ul class="flex flex-col gap-2">
+              <li class="flex items-start gap-2 text-sm text-[#A1A1A1]">
+                <span class="text-[#00D26A] mt-0.5 flex-shrink-0">→</span>
+                Live Polymarket data
+              </li>
+              <li class="flex items-start gap-2 text-sm text-[#A1A1A1]">
+                <span class="text-[#00D26A] mt-0.5 flex-shrink-0">→</span>
+                Outcomes + probabilities + volume
+              </li>
+              <li class="flex items-start gap-2 text-sm text-[#A1A1A1]">
+                <span class="text-[#00D26A] mt-0.5 flex-shrink-0">→</span>
+                Resolution status — no other API offers this alongside stocks and crypto
+              </li>
+            </ul>
+          </div>
+          <a href="/docs/polymarket" class="text-[#A1A1A1] text-sm hover:text-[#EDEDED] transition-colors">See reference →</a>
+        </div>
+        <div class="bg-[#141414] border border-[#262626] rounded-xl overflow-hidden" style="box-shadow: 0 1px 0 rgba(255,255,255,0.04);">
+          <div class="px-4 py-2.5 border-b border-[#262626] flex items-center gap-2">
+            <span class="w-1.5 h-1.5 rounded-full bg-[#3A3A3A]"></span>
+            <span class="w-1.5 h-1.5 rounded-full bg-[#3A3A3A]"></span>
+            <span class="w-1.5 h-1.5 rounded-full bg-[#3A3A3A]"></span>
+          </div>
+          <pre class="p-4 text-xs overflow-x-auto" style="font-family: 'JetBrains Mono', monospace;"><code><span class="text-[#6E6E6E]">$ </span><span class="text-[#EDEDED]">curl https://api.kapit.dev/v1/polymarket/markets/ \</span>
+<span class="text-[#EDEDED]">    bitcoin-all-time-high-by-september-30-2026 \</span>
+<span class="text-[#EDEDED]">    -H "Authorization: Bearer $KAPIT_KEY"</span></code></pre>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<script>
+  const tabs = document.querySelectorAll<HTMLButtonElement>('.tab-btn');
+  const panels = document.querySelectorAll<HTMLElement>('.tab-panel');
+
+  function setActive(tab: string) {
+    tabs.forEach(btn => {
+      const isActive = btn.dataset.tab === tab;
+      btn.classList.toggle('text-[#EDEDED]', isActive);
+      btn.classList.toggle('border-[#00D26A]', isActive);
+      btn.classList.toggle('text-[#6E6E6E]', !isActive);
+      btn.classList.toggle('border-transparent', !isActive);
+    });
+    panels.forEach(panel => {
+      panel.classList.toggle('hidden', panel.dataset.tab !== tab);
+    });
+  }
+
+  tabs.forEach(btn => {
+    btn.addEventListener('click', () => setActive(btn.dataset.tab!));
+  });
+
+  setActive('stocks');
+</script>

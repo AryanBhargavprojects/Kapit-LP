@@ -1,0 +1,92 @@
+---
+---
+<section class="py-24 border-b border-[#262626]">
+  <div class="max-w-6xl mx-auto px-6">
+
+    <!-- Header -->
+    <div class="mb-12">
+      <span class="text-xs text-[#00D26A] uppercase tracking-widest mb-3 block" style="font-family: 'JetBrains Mono', monospace;">Agent-Native</span>
+      <h2 class="text-3xl lg:text-4xl font-bold text-[#EDEDED] mb-4 tracking-tight" style="font-family: Inter, sans-serif;">
+        Built for agents, not just for humans.
+      </h2>
+      <p class="text-[#A1A1A1] text-lg max-w-xl">
+        Every response is structured, recoverable, and self-describing. Your agent never has to guess.
+      </p>
+    </div>
+
+    <!-- Cards -->
+    <div class="grid md:grid-cols-3 gap-5">
+
+      <!-- Card 1: Structured recoverable errors -->
+      <div class="bg-[#141414] border border-[#262626] rounded-xl p-6 flex flex-col gap-4" style="box-shadow: 0 1px 0 rgba(255,255,255,0.04);">
+        <div class="w-8 h-8 flex items-center justify-center rounded-lg bg-[#1C1C1C] border border-[#262626]">
+          <svg width="16" height="16" fill="none" stroke="#00D26A" stroke-width="1.5" viewBox="0 0 24 24">
+            <path d="M12 9v4m0 4h.01M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+          </svg>
+        </div>
+        <div>
+          <h3 class="text-[#EDEDED] font-semibold text-sm mb-1" style="font-family: Inter, sans-serif;">Structured recoverable errors</h3>
+          <p class="text-[#6E6E6E] text-xs leading-relaxed">Every error tells your agent exactly how to recover. No string-matching on error messages.</p>
+        </div>
+        <pre class="bg-[#0A0A0A] border border-[#262626] rounded-lg p-3 text-xs overflow-x-auto flex-1" style="font-family: 'JetBrains Mono', monospace;"><code><span class="text-[#6E6E6E]">{</span>
+  <span class="text-[#A1A1A1]">"error"</span><span class="text-[#6E6E6E]">: {</span>
+    <span class="text-[#A1A1A1]">"code"</span><span class="text-[#6E6E6E]">: </span><span class="text-[#EDEDED]">"upstream_rate_limited"</span><span class="text-[#6E6E6E]">,</span>
+    <span class="text-[#A1A1A1]">"is_retriable"</span><span class="text-[#6E6E6E]">: </span><span class="text-[#F7B500]">true</span><span class="text-[#6E6E6E]">,</span>
+    <span class="text-[#A1A1A1]">"retry_after_seconds"</span><span class="text-[#6E6E6E]">: </span><span class="text-[#7C9EFF]">30</span><span class="text-[#6E6E6E]">,</span>
+    <span class="text-[#A1A1A1]">"recovery"</span><span class="text-[#6E6E6E]">: {</span>
+      <span class="text-[#A1A1A1]">"action"</span><span class="text-[#6E6E6E]">: </span><span class="text-[#00D26A]">"retry_after"</span><span class="text-[#6E6E6E]">,</span>
+      <span class="text-[#A1A1A1]">"instructions"</span><span class="text-[#6E6E6E]">: </span><span class="text-[#EDEDED]">"Wait 30s then retry."</span>
+    <span class="text-[#6E6E6E]">}</span>
+  <span class="text-[#6E6E6E]">}</span>
+<span class="text-[#6E6E6E]">}</span></code></pre>
+      </div>
+
+      <!-- Card 2: Provider metadata -->
+      <div class="bg-[#141414] border border-[#262626] rounded-xl p-6 flex flex-col gap-4" style="box-shadow: 0 1px 0 rgba(255,255,255,0.04);">
+        <div class="w-8 h-8 flex items-center justify-center rounded-lg bg-[#1C1C1C] border border-[#262626]">
+          <svg width="16" height="16" fill="none" stroke="#00D26A" stroke-width="1.5" viewBox="0 0 24 24">
+            <circle cx="12" cy="12" r="10"/><path d="M12 16v-4m0-4h.01"/>
+          </svg>
+        </div>
+        <div>
+          <h3 class="text-[#EDEDED] font-semibold text-sm mb-1" style="font-family: Inter, sans-serif;">Provider metadata in every response</h3>
+          <p class="text-[#6E6E6E] text-xs leading-relaxed">Know where data came from, when it was fetched, and whether a fallback kicked in.</p>
+        </div>
+        <pre class="bg-[#0A0A0A] border border-[#262626] rounded-lg p-3 text-xs overflow-x-auto flex-1" style="font-family: 'JetBrains Mono', monospace;"><code><span class="text-[#6E6E6E]">{</span>
+  <span class="text-[#A1A1A1]">"meta"</span><span class="text-[#6E6E6E]">: {</span>
+    <span class="text-[#A1A1A1]">"source"</span><span class="text-[#6E6E6E]">: {</span>
+      <span class="text-[#A1A1A1]">"provider"</span><span class="text-[#6E6E6E]">: </span><span class="text-[#00D26A]">"fmp"</span><span class="text-[#6E6E6E]">,</span>
+      <span class="text-[#A1A1A1]">"fallback_used"</span><span class="text-[#6E6E6E]">: </span><span class="text-[#F7B500]">false</span>
+    <span class="text-[#6E6E6E]">},</span>
+    <span class="text-[#A1A1A1]">"freshness"</span><span class="text-[#6E6E6E]">: {</span>
+      <span class="text-[#A1A1A1]">"as_of"</span><span class="text-[#6E6E6E]">: </span><span class="text-[#EDEDED]">"2026-05-15T14:32:01Z"</span><span class="text-[#6E6E6E]">,</span>
+      <span class="text-[#A1A1A1]">"cache_ttl_seconds"</span><span class="text-[#6E6E6E]">: </span><span class="text-[#7C9EFF]">60</span>
+    <span class="text-[#6E6E6E]">}</span>
+  <span class="text-[#6E6E6E]">}</span>
+<span class="text-[#6E6E6E]">}</span></code></pre>
+      </div>
+
+      <!-- Card 3: Self-discoverable -->
+      <div class="bg-[#141414] border border-[#262626] rounded-xl p-6 flex flex-col gap-4" style="box-shadow: 0 1px 0 rgba(255,255,255,0.04);">
+        <div class="w-8 h-8 flex items-center justify-center rounded-lg bg-[#1C1C1C] border border-[#262626]">
+          <svg width="16" height="16" fill="none" stroke="#00D26A" stroke-width="1.5" viewBox="0 0 24 24">
+            <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+          </svg>
+        </div>
+        <div>
+          <h3 class="text-[#EDEDED] font-semibold text-sm mb-1" style="font-family: Inter, sans-serif;">Self-discoverable for agents</h3>
+          <p class="text-[#6E6E6E] text-xs leading-relaxed">Drop your agent at api.kapit.dev — it discovers every endpoint, schema, and example on its own.</p>
+        </div>
+        <pre class="bg-[#0A0A0A] border border-[#262626] rounded-lg p-3 text-xs overflow-x-auto flex-1" style="font-family: 'JetBrains Mono', monospace;"><code><span class="text-[#00D26A]">GET</span> <span class="text-[#EDEDED]">/v1/stocks/quotes/{"{symbol}"}</span>
+<span class="text-[#6E6E6E]"># Returns real-time stock quote.</span>
+<span class="text-[#6E6E6E]"># symbol: ticker (e.g. AAPL)</span>
+
+<span class="text-[#00D26A]">GET</span> <span class="text-[#EDEDED]">/v1/crypto/prices/{"{symbol}"}</span>
+<span class="text-[#6E6E6E]"># symbol: CoinGecko ID (e.g. bitcoin)</span>
+
+<span class="text-[#A1A1A1]">&gt; GET /llms.txt for full manifest</span></code></pre>
+      </div>
+
+    </div>
+  </div>
+</section>

@@ -1,0 +1,37 @@
+---
+---
+<nav class="fixed top-0 left-0 right-0 z-50 bg-[#0A0A0A] border-b border-[#262626] h-14">
+  <div class="max-w-6xl mx-auto px-6 h-full flex items-center justify-between">
+    <a href="/" class="flex items-center gap-2">
+      <span class="font-bold text-lg text-[#EDEDED] tracking-tight" style="font-family: Inter, sans-serif;">kapit</span>
+      <span class="text-xs bg-[#141414] border border-[#262626] text-[#00D26A] px-1.5 py-0.5 rounded" style="font-family: 'JetBrains Mono', monospace;">v1</span>
+    </a>
+    <div class="hidden md:flex items-center gap-6">
+      <a href="/docs" class="text-sm text-[#A1A1A1] hover:text-[#EDEDED] transition-colors">Docs</a>
+      <a href="/pricing" class="text-sm text-[#A1A1A1] hover:text-[#EDEDED] transition-colors">Pricing</a>
+      <a href="https://github.com/aryanbhargav/kapit" target="_blank" rel="noopener" class="text-sm text-[#A1A1A1] hover:text-[#EDEDED] transition-colors">GitHub</a>
+      <a href="/signup" class="inline-flex items-center bg-[#00D26A] text-[#0A0A0A] font-semibold text-sm px-4 py-1.5 rounded-lg hover:bg-[#00e87a] transition-colors">Get API key</a>
+    </div>
+    <button id="mobile-menu-btn" class="md:hidden text-[#A1A1A1] hover:text-[#EDEDED]" aria-label="Toggle menu">
+      <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <path d="M4 6h16M4 12h16M4 18h16"/>
+      </svg>
+    </button>
+  </div>
+  <div id="mobile-menu" class="hidden md:hidden bg-[#0A0A0A] border-b border-[#262626] px-6 pb-4">
+    <div class="flex flex-col gap-3 pt-3">
+      <a href="/docs" class="text-sm text-[#A1A1A1] hover:text-[#EDEDED] transition-colors">Docs</a>
+      <a href="/pricing" class="text-sm text-[#A1A1A1] hover:text-[#EDEDED] transition-colors">Pricing</a>
+      <a href="https://github.com/aryanbhargav/kapit" target="_blank" rel="noopener" class="text-sm text-[#A1A1A1] hover:text-[#EDEDED] transition-colors">GitHub</a>
+      <a href="/signup" class="inline-flex items-center bg-[#00D26A] text-[#0A0A0A] font-semibold text-sm px-4 py-2 rounded-lg hover:bg-[#00e87a] transition-colors w-fit">Get API key</a>
+    </div>
+  </div>
+</nav>
+
+<script>
+  const btn = document.getElementById('mobile-menu-btn');
+  const menu = document.getElementById('mobile-menu');
+  btn?.addEventListener('click', () => {
+    menu?.classList.toggle('hidden');
+  });
+</script>

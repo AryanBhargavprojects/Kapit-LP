@@ -1,0 +1,164 @@
+---
+---
+<section class="py-24 border-b border-[#262626]">
+  <div class="max-w-6xl mx-auto px-6">
+    <div class="mb-10">
+      <h2 class="text-3xl font-bold text-[#EDEDED] tracking-tight mb-3">Drop it into any stack</h2>
+      <p class="text-[#A1A1A1] text-lg">Six lines. Any language. Same envelope.</p>
+    </div>
+
+    <div class="flex gap-1 mb-4 border-b border-[#262626] overflow-x-auto" id="code-tabs">
+      <button data-tab="curl"       class="code-tab px-4 py-2 text-sm font-medium whitespace-nowrap text-[#EDEDED] border-b-2 border-[#00D26A] -mb-px">cURL</button>
+      <button data-tab="python"     class="code-tab px-4 py-2 text-sm font-medium whitespace-nowrap text-[#6E6E6E] border-b-2 border-transparent -mb-px hover:text-[#A1A1A1]">Python</button>
+      <button data-tab="typescript" class="code-tab px-4 py-2 text-sm font-medium whitespace-nowrap text-[#6E6E6E] border-b-2 border-transparent -mb-px hover:text-[#A1A1A1]">TypeScript</button>
+      <button data-tab="openai"     class="code-tab px-4 py-2 text-sm font-medium whitespace-nowrap text-[#6E6E6E] border-b-2 border-transparent -mb-px hover:text-[#A1A1A1]">OpenAI Tool</button>
+      <button data-tab="anthropic"  class="code-tab px-4 py-2 text-sm font-medium whitespace-nowrap text-[#6E6E6E] border-b-2 border-transparent -mb-px hover:text-[#A1A1A1]">Anthropic Tool</button>
+      <button data-tab="mcp"        class="code-tab px-4 py-2 text-sm font-medium whitespace-nowrap text-[#6E6E6E] border-b-2 border-transparent -mb-px hover:text-[#A1A1A1]">MCP</button>
+    </div>
+
+    <div class="relative">
+      <button
+        id="copy-btn"
+        class="absolute top-4 right-4 z-10 text-xs text-[#6E6E6E] hover:text-[#EDEDED] bg-[#1C1C1C] border border-[#262626] rounded px-2.5 py-1 transition-colors"
+      >
+        Copy
+      </button>
+
+      <div id="tab-curl" class="code-panel">
+        <pre is:raw class="bg-[#141414] border border-[#262626] rounded-xl p-5 text-sm overflow-x-auto text-[#EDEDED]" style="font-family: 'JetBrains Mono', monospace;"><code>curl https://api.kapit.dev/v1/stocks/quotes/AAPL \
+  -H "Authorization: Bearer $KAPIT_KEY"</code></pre>
+      </div>
+
+      <div id="tab-python" class="code-panel hidden">
+        <pre is:raw class="bg-[#141414] border border-[#262626] rounded-xl p-5 text-sm overflow-x-auto text-[#EDEDED]" style="font-family: 'JetBrains Mono', monospace;"><code>import httpx
+
+client = httpx.Client(
+    base_url="https://api.kapit.dev",
+    headers={"Authorization": f"Bearer {API_KEY}"}
+)
+
+response = client.get("/v1/stocks/quotes/AAPL")
+data = response.json()
+
+print(data["data"]["price"])              # 213.49
+print(data["meta"]["source"]["provider"]) # "fmp"</code></pre>
+      </div>
+
+      <div id="tab-typescript" class="code-panel hidden">
+        <pre is:raw class="bg-[#141414] border border-[#262626] rounded-xl p-5 text-sm overflow-x-auto text-[#EDEDED]" style="font-family: 'JetBrains Mono', monospace;"><code>const res = await fetch("https://api.kapit.dev/v1/stocks/quotes/AAPL", {
+  headers: { Authorization: `Bearer ${process.env.KAPIT_KEY}` },
+});
+
+const { data, meta } = await res.json();
+
+console.log(data.price);                // 213.49
+console.log(meta.source.provider);     // "fmp"
+console.log(meta.rate_limit.remaining);// 987</code></pre>
+      </div>
+
+      <div id="tab-openai" class="code-panel hidden">
+        <pre is:raw class="bg-[#141414] border border-[#262626] rounded-xl p-5 text-sm overflow-x-auto text-[#EDEDED]" style="font-family: 'JetBrains Mono', monospace;"><code>tools = [{
+    "type": "function",
+    "function": {
+        "name": "get_stock_quote",
+        "description": "Get real-time stock quote from Kapit API",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "symbol": {"type": "string", "description": "Ticker, e.g. AAPL"}
+            },
+            "required": ["symbol"]
+        }
+    }
+}]
+
+# Tool handler:
+def handle_tool(symbol: str):
+    res = httpx.get(
+        f"https://api.kapit.dev/v1/stocks/quotes/{symbol}",
+        headers={"Authorization": f"Bearer {KAPIT_KEY}"}
+    )
+    return res.json()</code></pre>
+      </div>
+
+      <div id="tab-anthropic" class="code-panel hidden">
+        <pre is:raw class="bg-[#141414] border border-[#262626] rounded-xl p-5 text-sm overflow-x-auto text-[#EDEDED]" style="font-family: 'JetBrains Mono', monospace;"><code>tools = [{
+    "name": "get_stock_quote",
+    "description": "Fetch real-time stock quote. Returns price, volume, and provider metadata.",
+    "input_schema": {
+        "type": "object",
+        "properties": {
+            "symbol": {"type": "string", "description": "Ticker (e.g. AAPL, MSFT, TSLA)"}
+        },
+        "required": ["symbol"]
+    }
+}]
+
+# Tool handler:
+def process_tool(tool_use):
+    symbol = tool_use.input["symbol"]
+    res = httpx.get(
+        f"https://api.kapit.dev/v1/stocks/quotes/{symbol}",
+        headers={"Authorization": f"Bearer {KAPIT_KEY}"}
+    )
+    return res.json()["data"]</code></pre>
+      </div>
+
+      <div id="tab-mcp" class="code-panel hidden">
+        <pre is:raw class="bg-[#141414] border border-[#262626] rounded-xl p-5 text-sm overflow-x-auto text-[#EDEDED]" style="font-family: 'JetBrains Mono', monospace;"><code># Add to your MCP client config (Claude Desktop, Cursor, Cline, etc.)
+{
+  "mcpServers": {
+    "kapit": {
+      "command": "npx",
+      "args": ["@kapit/mcp"],
+      "env": {
+        "KAPIT_API_KEY": "kap_live_..."
+      }
+    }
+  }
+}
+
+# Your agent then calls:
+# kapit_get_stock_quote(symbol="AAPL")
+# kapit_get_crypto_price(coin_id="bitcoin")
+# kapit_get_polymarket_market(market_id="...")</code></pre>
+      </div>
+    </div>
+
+    <div class="mt-4">
+      <a href="/docs/api" class="text-sm text-[#A1A1A1] hover:text-[#EDEDED] transition-colors">View full reference →</a>
+    </div>
+  </div>
+</section>
+
+<script>
+  const tabs = document.querySelectorAll('.code-tab');
+  const panels = document.querySelectorAll('.code-panel');
+  const copyBtn = document.getElementById('copy-btn');
+
+  tabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+      const target = (tab as HTMLElement).getAttribute('data-tab');
+
+      tabs.forEach(t => {
+        t.classList.remove('text-[#EDEDED]', 'border-[#00D26A]');
+        t.classList.add('text-[#6E6E6E]', 'border-transparent');
+      });
+      tab.classList.remove('text-[#6E6E6E]', 'border-transparent');
+      tab.classList.add('text-[#EDEDED]', 'border-[#00D26A]');
+
+      panels.forEach(p => p.classList.add('hidden'));
+      document.getElementById(`tab-${target}`)?.classList.remove('hidden');
+    });
+  });
+
+  copyBtn?.addEventListener('click', () => {
+    const visible = document.querySelector('.code-panel:not(.hidden) code');
+    if (visible) {
+      navigator.clipboard.writeText(visible.textContent ?? '').then(() => {
+        if (copyBtn) copyBtn.textContent = 'Copied!';
+        setTimeout(() => { if (copyBtn) copyBtn.textContent = 'Copy'; }, 2000);
+      });
+    }
+  });
+</script>

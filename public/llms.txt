@@ -1,0 +1,74 @@
+# Kapit — Financial data API for AI agents
+# https://kapit.dev
+
+Kapit is a unified financial data REST API designed natively for AI agents.
+One API key. One base URL. One consistent response envelope. Provider-normalized schemas.
+
+## Base URL
+https://api.kapit.dev
+
+## Authentication
+Authorization: Bearer <your_api_key>
+API keys are prefixed: kap_test_... (sandbox) or kap_live_... (production)
+
+## Endpoints
+
+### Stocks
+GET /v1/stocks/quotes/{symbol}
+- Returns real-time stock quote data
+- Primary provider: FMP. Fallback: Twelve Data
+- symbol: ticker symbol (e.g. AAPL, MSFT, TSLA)
+
+### Crypto
+GET /v1/crypto/prices/{symbol}
+- Returns cryptocurrency price data
+- Provider: CoinGecko
+- symbol: CoinGecko coin ID (e.g. bitcoin, ethereum, solana) — NOT ticker
+
+### Prediction Markets
+GET /v1/polymarket/markets/{market_id}
+- Returns Polymarket prediction market data
+- market_id: numeric ID or slug (e.g. bitcoin-all-time-high-by-september-30-2026)
+
+### Usage
+GET /v1/usage
+- Returns your API key usage, quota, and tier
+
+## Response envelope
+Every endpoint returns KapitResponse[T]:
+{
+  "data": { ...asset-specific payload... },
+  "meta": {
+    "request_id": "req_...",
+    "source": { "provider": "fmp", "primary_provider": "fmp", "fallback_used": false },
+    "freshness": { "as_of": "2026-01-01T00:00:00Z", "cache_ttl_seconds": 60 },
+    "usage": { "cache": false },
+    "rate_limit": { "limit": 1000, "remaining": 987, "reset_at": "2026-01-02T00:00:00Z" }
+  }
+}
+
+## Error envelope
+Every error returns KapitErrorResponse:
+{
+  "error": {
+    "code": "symbol_not_found",
+    "message": "The requested symbol was not found.",
+    "doc_url": "https://kapit.dev/docs/errors/symbol_not_found",
+    "is_retriable": false,
+    "retry_after_seconds": null,
+    "alternative_action": "Check the symbol format and try again.",
+    "recovery": { "action": "fix_params", "param": "symbol" }
+  },
+  "meta": { "request_id": "req_..." }
+}
+
+## Agent usage notes
+- Inspect meta.source.provider to know which data provider served the response
+- Inspect meta.freshness.as_of to know data freshness
+- Inspect meta.rate_limit.remaining to manage quota
+- Follow error.recovery.action for structured error recovery
+- Use /openapi.json for the full OpenAPI 3.1 spec
+- Crypto symbols are CoinGecko IDs (bitcoin) not tickers (BTC)
+
+## Get an API key
+https://kapit.dev/signup
