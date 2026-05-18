@@ -27,7 +27,7 @@
       <div class="flex items-center justify-between border border-[#2A2A2A] bg-[#060606]/80 rounded-xl px-6 py-4" style="backdrop-filter: blur(8px);">
         <div class="flex items-center gap-3 min-w-0">
           <span class="text-[#6E6E6E] text-sm flex-shrink-0" style="font-family: 'JetBrains Mono', monospace;">$</span>
-          <span class="text-[#EDEDED] text-sm truncate" style="font-family: 'JetBrains Mono', monospace;">curl https://api.kapit.dev/llms.txt</span>
+          <span class="text-[#EDEDED] text-sm truncate" style="font-family: 'JetBrains Mono', monospace;">npx skills add https://github.com/AryanBhargavprojects/Kapit-skills.git</span>
         </div>
         <button
           id="copy-llms"
@@ -67,7 +67,7 @@
   const btn = document.getElementById('copy-llms');
   if (btn) {
     btn.addEventListener('click', () => {
-      navigator.clipboard.writeText('curl https://api.kapit.dev/llms.txt');
+      navigator.clipboard.writeText('npx skills add https://github.com/AryanBhargavprojects/Kapit-skills.git');
       btn.textContent = 'Copied!';
       btn.classList.add('text-white');
       btn.classList.remove('text-[#8B8B8B]', 'hover:text-[#EDEDED]');
