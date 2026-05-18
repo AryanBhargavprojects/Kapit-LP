@@ -23,12 +23,12 @@ export default function NavbarAuthActions() {
 
   return (
     <div className="flex items-center gap-3">
-      <SignInButton mode="redirect">
+      <SignInButton mode="modal">
         <button className="text-sm text-[#A1A1A1] hover:text-[#EDEDED] transition-colors cursor-pointer">
           Sign In
         </button>
       </SignInButton>
-      <SignUpButton mode="redirect">
+      <SignUpButton mode="modal">
         <button className="inline-flex items-center bg-[#7C3AED] text-white font-semibold text-sm px-4 py-1.5 rounded-lg hover:bg-[#8B5CF6] transition-colors cursor-pointer">
           Get API Key
         </button>

@@ -1,5 +1,5 @@
 import { d as AstroError, a4 as UnsupportedImageFormat, x as MissingSharp } from "./params-and-props_BO-CuAf5.mjs";
-import { b as baseService, d as detector, p as parseQuality } from "./generic_DnP3CBl6.mjs";
+import { b as baseService, d as detector, p as parseQuality } from "./generic_BDFsa8eL.mjs";
 let sharp;
 const qualityTable = {
   low: 25,

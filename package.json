@@ -15,6 +15,7 @@
     "@astrojs/react": "^5.0.5",
     "@astrojs/vercel": "^10.0.7",
     "@clerk/astro": "^3.2.4",
+    "@clerk/ui": "^1.11.0",
     "@tailwindcss/vite": "^4.3.0",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",

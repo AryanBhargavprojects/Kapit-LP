@@ -507,8 +507,8 @@ function NavbarAuthActions() {
     ] });
   }
   return /* @__PURE__ */ jsxs("div", { className: "flex items-center gap-3", children: [
-    /* @__PURE__ */ jsx(SignInButton, { mode: "redirect", children: /* @__PURE__ */ jsx("button", { className: "text-sm text-[#A1A1A1] hover:text-[#EDEDED] transition-colors cursor-pointer", children: "Sign In" }) }),
-    /* @__PURE__ */ jsx(SignUpButton, { mode: "redirect", children: /* @__PURE__ */ jsx("button", { className: "inline-flex items-center bg-[#7C3AED] text-white font-semibold text-sm px-4 py-1.5 rounded-lg hover:bg-[#8B5CF6] transition-colors cursor-pointer", children: "Get API Key" }) })
+    /* @__PURE__ */ jsx(SignInButton, { mode: "modal", children: /* @__PURE__ */ jsx("button", { className: "text-sm text-[#A1A1A1] hover:text-[#EDEDED] transition-colors cursor-pointer", children: "Sign In" }) }),
+    /* @__PURE__ */ jsx(SignUpButton, { mode: "modal", children: /* @__PURE__ */ jsx("button", { className: "inline-flex items-center bg-[#7C3AED] text-white font-semibold text-sm px-4 py-1.5 rounded-lg hover:bg-[#8B5CF6] transition-colors cursor-pointer", children: "Get API Key" }) })
   ] });
 }
 const BASE_URL = "http://localhost:8000";

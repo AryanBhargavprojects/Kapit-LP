@@ -1,8 +1,8 @@
 import { c as createComponent } from "./astro-component_C-dX4Z7q.mjs";
 import "piccolore";
 import { b3 as renderHead, b7 as renderTemplate } from "./params-and-props_BO-CuAf5.mjs";
-import { r as renderComponent } from "./entrypoint_DpuGg60V.mjs";
-import { u as useAuth, l as listApiKeys, K as KapitDashboardApiError, c as createApiKey, r as revokeApiKey, d as getAccountUsage, N as NavbarAuthActions } from "./kapit-dashboard-api_BO7CdYbG.mjs";
+import { r as renderComponent } from "./entrypoint_B6cJSNVz.mjs";
+import { u as useAuth, l as listApiKeys, K as KapitDashboardApiError, c as createApiKey, r as revokeApiKey, d as getAccountUsage, N as NavbarAuthActions } from "./kapit-dashboard-api_B80WnFla.mjs";
 import { jsxs, jsx, Fragment } from "react/jsx-runtime";
 import { useState, useEffect } from "react";
 import { Q as QuotaWarningBanner } from "./QuotaWarningBanner_f0Ytz45_.mjs";
