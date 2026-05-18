@@ -2,31 +2,75 @@
 import Layout from '../layouts/Layout.astro';
 import Navbar from '../components/Navbar.astro';
 import Hero from '../components/Hero.astro';
-import TrustStrip from '../components/TrustStrip.astro';
-import AgentNativeDifference from '../components/AgentNativeDifference.astro';
-import AssetClasses from '../components/AssetClasses.astro';
-import TryItLive from '../components/TryItLive';
-import CodeExamples from '../components/CodeExamples.astro';
-import BuiltForAgents from '../components/BuiltForAgents.astro';
-import PricingTeaser from '../components/PricingTeaser.astro';
-import FinalCTA from '../components/FinalCTA.astro';
-import Footer from '../components/Footer.astro';
+import AgentCompatibility from '../components/AgentCompatibility.astro';
+import MachineView from '../components/MachineView.astro';
 
 export const prerender = true;
 ---
 
 <Layout>
   <Navbar />
-  <main>
+  <main id="human-content">
     <Hero />
-    <TrustStrip />
-    <AgentNativeDifference />
-    <AssetClasses />
-    <TryItLive client:load />
-    <CodeExamples />
-    <BuiltForAgents />
-    <PricingTeaser />
-    <FinalCTA />
+    <AgentCompatibility />
   </main>
-  <Footer />
+  <MachineView />
 </Layout>
+
+<script>
+  const humanBtn = document.getElementById('view-human');
+  const machineBtn = document.getElementById('view-machine');
+  const humanContent = document.getElementById('human-content');
+  const machineView = document.getElementById('machine-view');
+  const bgVideo = document.querySelector('video');
+
+  function updateToggleStyles(isMachine: boolean) {
+    if (!humanBtn || !machineBtn) return;
+
+    humanBtn.className = `text-xs px-3 py-1 rounded-full transition-all ${
+      !isMachine
+        ? 'bg-[#1C1C1C] text-[#EDEDED]'
+        : 'text-[#6E6E6E] hover:text-[#ADADAD]'
+    }`;
+    humanBtn.style.fontFamily = "'JetBrains Mono', monospace";
+
+    machineBtn.className = `text-xs px-3 py-1 rounded-full transition-all ${
+      isMachine
+        ? 'bg-[#1C1C1C] text-[#EDEDED]'
+        : 'text-[#6E6E6E] hover:text-[#ADADAD]'
+    }`;
+    machineBtn.style.fontFamily = "'JetBrains Mono', monospace";
+  }
+
+  function setView(mode: 'human' | 'machine') {
+    const isMachine = mode === 'machine';
+
+    humanContent?.classList.toggle('hidden', isMachine);
+    machineView?.classList.toggle('hidden', !isMachine);
+
+    if (bgVideo) (bgVideo as HTMLVideoElement).style.opacity = isMachine ? '0' : '0.3';
+
+    if (humanBtn && machineBtn) {
+      humanBtn.setAttribute('data-active', (!isMachine).toString());
+      machineBtn.setAttribute('data-active', isMachine.toString());
+    }
+
+    updateToggleStyles(isMachine);
+
+    const url = new URL(window.location.href);
+    if (isMachine) {
+      url.searchParams.set('view', 'machine');
+    } else {
+      url.searchParams.delete('view');
+    }
+    window.history.pushState({}, '', url.toString());
+  }
+
+  humanBtn?.addEventListener('click', () => setView('human'));
+  machineBtn?.addEventListener('click', () => setView('machine'));
+
+  const params = new URLSearchParams(window.location.search);
+  if (params.get('view') === 'machine') {
+    setView('machine');
+  }
+</script>

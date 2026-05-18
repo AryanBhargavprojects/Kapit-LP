@@ -1,0 +1,1600 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Kapit API",
+    "description": "Kapit provides unified access to financial data across stocks, cryptocurrencies, and prediction markets. One API key, one schema, multi-asset access — designed for AI agent builders who need reliable data without juggling multiple upstream APIs (FMP, Twelve Data, CoinGecko, Polymarket).\n\nEvery response includes a consistent envelope with `data` and `meta` fields. Every error includes a structured `recovery` plan so autonomous agents can self-correct without human intervention.\n\n**Quick start:**\n\n1. Get an API key at https://kapit.dev/dashboard.\n2. Add `Authorization: Bearer kap_live_xxx` to every request.\n3. Call any endpoint — for example `GET /v1/stocks/quotes/AAPL`.\n\n**Authentication:** Bearer token only. Keys starting with `kap_live_` are production; `kap_test_` are sandbox (same API, mocked data). No OAuth, no redirects, no CAPTCHAs.\n\n**Error handling:** Match on `error.code` (never `message`). Check `error.recovery.action` for the recommended recovery strategy. When `action` is `wait_and_retry`, use `recovery.retry_after_seconds` and `recovery.backoff_strategy`.",
+    "version": "1.0.0",
+    "termsOfService": "https://kapit.dev/terms",
+    "contact": {
+      "name": "Kapit Support",
+      "url": "https://kapit.dev/support",
+      "email": "support@kapit.dev"
+    },
+    "license": {
+      "name": "Proprietary",
+      "url": "https://kapit.dev/terms"
+    }
+  },
+  "servers": [
+    {
+      "url": "https://api.kapit.dev",
+      "description": "Production"
+    }
+  ],
+  "security": [
+    {
+      "BearerAuth": []
+    }
+  ],
+  "tags": [
+    {
+      "name": "Stocks",
+      "description": "Real-time equity quotes sourced from FMP (primary) with Twelve Data fallback."
+    },
+    {
+      "name": "Crypto",
+      "description": "Real-time cryptocurrency prices sourced from CoinGecko. Symbols are CoinGecko coin IDs (e.g. `bitcoin`, `ethereum`), not exchange tickers."
+    },
+    {
+      "name": "Prediction Markets",
+      "description": "Prediction market data sourced from Polymarket's Gamma API. Includes outcomes, implied probabilities, volume, liquidity, and order books."
+    },
+    {
+      "name": "Usage",
+      "description": "Account usage and rate-limit status."
+    }
+  ],
+  "paths": {
+    "/v1/stocks/quotes/{symbol}": {
+      "get": {
+        "tags": ["Stocks"],
+        "operationId": "getStockQuote",
+        "summary": "Get real-time stock quote",
+        "description": "Returns a real-time quote for a publicly traded equity, including price, percentage change, volume, market cap, day range, and exchange metadata. Primary provider is FMP; if FMP fails, Kapit automatically falls back to Twelve Data and reports the resolved provider in `meta.source`.\n\nFree-tier responses may be delayed up to 15 minutes — check `meta.freshness.is_delayed` before treating data as real-time.",
+        "parameters": [
+          {
+            "name": "symbol",
+            "in": "path",
+            "required": true,
+            "description": "Exchange ticker symbol. Case-insensitive. Use the standard ticker as listed on NASDAQ, NYSE, or other supported exchanges.",
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 12,
+              "pattern": "^[A-Za-z0-9.\\-]+$",
+              "example": "AAPL"
+            },
+            "example": "AAPL"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful stock quote response.",
+            "headers": {
+              "X-RateLimit-Limit": { "$ref": "#/components/headers/XRateLimitLimit" },
+              "X-RateLimit-Remaining": { "$ref": "#/components/headers/XRateLimitRemaining" },
+              "X-RateLimit-Reset": { "$ref": "#/components/headers/XRateLimitReset" },
+              "X-Request-ID": { "$ref": "#/components/headers/XRequestID" }
+            },
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/StockQuoteEnvelope" },
+                "example": {
+                  "data": {
+                    "asset": {
+                      "symbol": "AAPL",
+                      "name": "Apple Inc.",
+                      "asset_class": "stock",
+                      "exchange": "NASDAQ",
+                      "currency": "USD"
+                    },
+                    "price": 214.32,
+                    "change": 1.84,
+                    "change_percent": 0.866,
+                    "previous_close": 212.48,
+                    "open": 213.10,
+                    "day_high": 215.05,
+                    "day_low": 212.71,
+                    "volume": 48213900,
+                    "market_cap": 3284000000000,
+                    "as_of": "2026-05-16T19:59:58Z"
+                  },
+                  "meta": {
+                    "request_id": "req_a1b2c3d4e5f6",
+                    "fetched_at": "2026-05-16T19:59:59Z",
+                    "source": {
+                      "provider": "fmp",
+                      "fallback_provider": null
+                    },
+                    "freshness": {
+                      "as_of": "2026-05-16T19:59:58Z",
+                      "is_stale": false,
+                      "is_delayed": false,
+                      "cache_ttl_seconds": 5
+                    },
+                    "rate_limit": {
+                      "limit": 1000,
+                      "remaining": 987,
+                      "reset_at": "2026-05-17T00:00:00Z",
+                      "tier": "starter"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": { "$ref": "#/components/responses/InvalidRequest" },
+          "401": { "$ref": "#/components/responses/AuthenticationError" },
+          "403": { "$ref": "#/components/responses/PermissionDenied" },
+          "404": { "$ref": "#/components/responses/SymbolNotFound" },
+          "429": { "$ref": "#/components/responses/RateLimited" },
+          "500": { "$ref": "#/components/responses/InternalError" },
+          "502": { "$ref": "#/components/responses/UpstreamError" },
+          "504": { "$ref": "#/components/responses/UpstreamTimeout" }
+        }
+      }
+    },
+    "/v1/crypto/prices/{symbol}": {
+      "get": {
+        "tags": ["Crypto"],
+        "operationId": "getCryptoPrice",
+        "summary": "Get real-time crypto price",
+        "description": "Returns a real-time price for a cryptocurrency, including 24h change, market cap, circulating supply, and 24h trading volume. Powered by CoinGecko.\n\n**Important:** the `symbol` path parameter is a CoinGecko *coin ID* (e.g. `bitcoin`, `ethereum`, `solana`), **not** an exchange ticker (`BTC`, `ETH`, `SOL`). Look up valid IDs at https://www.coingecko.com.\n\nCrypto prices change rapidly — do not cache responses for more than 30 seconds.",
+        "parameters": [
+          {
+            "name": "symbol",
+            "in": "path",
+            "required": true,
+            "description": "CoinGecko coin ID. Lowercase, hyphen-separated. **Not** a ticker symbol — use `bitcoin`, not `BTC`.",
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 64,
+              "pattern": "^[a-z0-9\\-]+$",
+              "example": "bitcoin"
+            },
+            "example": "bitcoin"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful crypto price response.",
+            "headers": {
+              "X-RateLimit-Limit": { "$ref": "#/components/headers/XRateLimitLimit" },
+              "X-RateLimit-Remaining": { "$ref": "#/components/headers/XRateLimitRemaining" },
+              "X-RateLimit-Reset": { "$ref": "#/components/headers/XRateLimitReset" },
+              "X-Request-ID": { "$ref": "#/components/headers/XRequestID" }
+            },
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/CryptoPriceEnvelope" },
+                "example": {
+                  "data": {
+                    "asset": {
+                      "symbol": "bitcoin",
+                      "ticker": "BTC",
+                      "name": "Bitcoin",
+                      "asset_class": "crypto",
+                      "currency": "USD"
+                    },
+                    "price": 67342.18,
+                    "change_24h": 812.47,
+                    "change_percent_24h": 1.22,
+                    "market_cap": 1329000000000,
+                    "volume_24h": 28412000000,
+                    "circulating_supply": 19735000,
+                    "total_supply": 21000000,
+                    "max_supply": 21000000,
+                    "as_of": "2026-05-16T19:59:55Z"
+                  },
+                  "meta": {
+                    "request_id": "req_b2c3d4e5f6a1",
+                    "fetched_at": "2026-05-16T19:59:59Z",
+                    "source": {
+                      "provider": "coingecko",
+                      "fallback_provider": null
+                    },
+                    "freshness": {
+                      "as_of": "2026-05-16T19:59:55Z",
+                      "is_stale": false,
+                      "is_delayed": false,
+                      "cache_ttl_seconds": 30
+                    },
+                    "rate_limit": {
+                      "limit": 1000,
+                      "remaining": 986,
+                      "reset_at": "2026-05-17T00:00:00Z",
+                      "tier": "starter"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": { "$ref": "#/components/responses/InvalidRequest" },
+          "401": { "$ref": "#/components/responses/AuthenticationError" },
+          "403": { "$ref": "#/components/responses/PermissionDenied" },
+          "404": { "$ref": "#/components/responses/SymbolNotFound" },
+          "429": { "$ref": "#/components/responses/RateLimited" },
+          "500": { "$ref": "#/components/responses/InternalError" },
+          "502": { "$ref": "#/components/responses/UpstreamError" },
+          "504": { "$ref": "#/components/responses/UpstreamTimeout" }
+        }
+      }
+    },
+    "/v1/polymarket/markets/{market_id}": {
+      "get": {
+        "tags": ["Prediction Markets"],
+        "operationId": "getPolymarketMarket",
+        "summary": "Get a Polymarket prediction market",
+        "description": "Returns a single prediction market from Polymarket's Gamma API, including outcomes, implied probabilities (in 0.0–1.0 form), total volume, liquidity, resolution status, and an optional order-book snapshot.\n\nPrediction market prices reflect probability, not certainty — do not treat them as guarantees.",
+        "parameters": [
+          {
+            "name": "market_id",
+            "in": "path",
+            "required": true,
+            "description": "Polymarket market identifier. Either a numeric ID (e.g. `12345`) or a URL-friendly slug as it appears in the Polymarket URL (e.g. `will-bitcoin-exceed-100k-by-dec-31-2026`).",
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 256,
+              "example": "will-bitcoin-exceed-100k-by-dec-31-2026"
+            },
+            "example": "will-bitcoin-exceed-100k-by-dec-31-2026"
+          },
+          {
+            "name": "include_order_book",
+            "in": "query",
+            "required": false,
+            "description": "If `true`, include a snapshot of the top-of-book bids and asks for each outcome.",
+            "schema": {
+              "type": "boolean",
+              "default": false
+            },
+            "example": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful prediction-market response.",
+            "headers": {
+              "X-RateLimit-Limit": { "$ref": "#/components/headers/XRateLimitLimit" },
+              "X-RateLimit-Remaining": { "$ref": "#/components/headers/XRateLimitRemaining" },
+              "X-RateLimit-Reset": { "$ref": "#/components/headers/XRateLimitReset" },
+              "X-Request-ID": { "$ref": "#/components/headers/XRequestID" }
+            },
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/PredictionMarketEnvelope" },
+                "example": {
+                  "data": {
+                    "market_id": "will-bitcoin-exceed-100k-by-dec-31-2026",
+                    "numeric_id": 12345,
+                    "question": "Will Bitcoin exceed $100,000 by Dec 31, 2026?",
+                    "description": "This market resolves YES if the price of Bitcoin (BTC/USD) closes at or above $100,000 on any major exchange on or before Dec 31, 2026.",
+                    "category": "Crypto",
+                    "asset_class": "prediction_market",
+                    "status": "open",
+                    "is_resolved": false,
+                    "resolved_outcome": null,
+                    "end_date": "2026-12-31T23:59:59Z",
+                    "volume_usd": 4821934.55,
+                    "liquidity_usd": 184321.10,
+                    "outcomes": [
+                      {
+                        "name": "YES",
+                        "price": 0.62,
+                        "implied_probability": 0.62,
+                        "last_trade_price": 0.62,
+                        "order_book": {
+                          "bids": [
+                            { "price": 0.61, "size": 1500 },
+                            { "price": 0.60, "size": 3200 }
+                          ],
+                          "asks": [
+                            { "price": 0.63, "size": 1100 },
+                            { "price": 0.64, "size": 2400 }
+                          ]
+                        }
+                      },
+                      {
+                        "name": "NO",
+                        "price": 0.38,
+                        "implied_probability": 0.38,
+                        "last_trade_price": 0.38,
+                        "order_book": {
+                          "bids": [
+                            { "price": 0.37, "size": 2100 },
+                            { "price": 0.36, "size": 4500 }
+                          ],
+                          "asks": [
+                            { "price": 0.39, "size": 1800 },
+                            { "price": 0.40, "size": 3300 }
+                          ]
+                        }
+                      }
+                    ],
+                    "as_of": "2026-05-16T19:59:50Z"
+                  },
+                  "meta": {
+                    "request_id": "req_c3d4e5f6a1b2",
+                    "fetched_at": "2026-05-16T19:59:59Z",
+                    "source": {
+                      "provider": "polymarket",
+                      "fallback_provider": null
+                    },
+                    "freshness": {
+                      "as_of": "2026-05-16T19:59:50Z",
+                      "is_stale": false,
+                      "is_delayed": false,
+                      "cache_ttl_seconds": 10
+                    },
+                    "rate_limit": {
+                      "limit": 1000,
+                      "remaining": 985,
+                      "reset_at": "2026-05-17T00:00:00Z",
+                      "tier": "starter"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": { "$ref": "#/components/responses/InvalidRequest" },
+          "401": { "$ref": "#/components/responses/AuthenticationError" },
+          "403": { "$ref": "#/components/responses/PermissionDenied" },
+          "404": { "$ref": "#/components/responses/MarketNotFound" },
+          "429": { "$ref": "#/components/responses/RateLimited" },
+          "500": { "$ref": "#/components/responses/InternalError" },
+          "502": { "$ref": "#/components/responses/UpstreamError" },
+          "504": { "$ref": "#/components/responses/UpstreamTimeout" }
+        }
+      }
+    },
+    "/v1/usage": {
+      "get": {
+        "tags": ["Usage"],
+        "operationId": "getUsage",
+        "summary": "Get current usage and rate-limit status",
+        "description": "Returns the API key's current usage for the active rate-limit window, including remaining quota, reset time, and tier.",
+        "responses": {
+          "200": {
+            "description": "Successful usage response.",
+            "headers": {
+              "X-RateLimit-Limit": { "$ref": "#/components/headers/XRateLimitLimit" },
+              "X-RateLimit-Remaining": { "$ref": "#/components/headers/XRateLimitRemaining" },
+              "X-RateLimit-Reset": { "$ref": "#/components/headers/XRateLimitReset" },
+              "X-Request-ID": { "$ref": "#/components/headers/XRequestID" }
+            },
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/UsageEnvelope" },
+                "example": {
+                  "data": {
+                    "tier": "starter",
+                    "limit": 1000,
+                    "used": 14,
+                    "remaining": 986,
+                    "reset_at": "2026-05-17T00:00:00Z",
+                    "window": "daily"
+                  },
+                  "meta": {
+                    "request_id": "req_d4e5f6a1b2c3",
+                    "fetched_at": "2026-05-16T19:59:59Z",
+                    "rate_limit": {
+                      "limit": 1000,
+                      "remaining": 986,
+                      "reset_at": "2026-05-17T00:00:00Z",
+                      "tier": "starter"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": { "$ref": "#/components/responses/AuthenticationError" },
+          "429": { "$ref": "#/components/responses/RateLimited" },
+          "500": { "$ref": "#/components/responses/InternalError" }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "BearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "API Key",
+        "description": "Bearer token authentication. Pass your API key as `Authorization: Bearer kap_live_xxx`.\n\n- `kap_live_*` keys access production data.\n- `kap_test_*` keys hit the sandbox (same API, mocked responses).\n\nNo OAuth, no `X-API-Key` header, no query-parameter auth. Get a key at https://kapit.dev/dashboard."
+      }
+    },
+    "headers": {
+      "XRateLimitLimit": {
+        "description": "Maximum number of requests allowed in the current rate-limit window.",
+        "schema": { "type": "integer", "example": 1000 }
+      },
+      "XRateLimitRemaining": {
+        "description": "Number of requests remaining in the current rate-limit window.",
+        "schema": { "type": "integer", "example": 987 }
+      },
+      "XRateLimitReset": {
+        "description": "ISO-8601 timestamp at which the current rate-limit window resets.",
+        "schema": { "type": "string", "format": "date-time", "example": "2026-05-17T00:00:00Z" }
+      },
+      "XRetryAfter": {
+        "description": "Number of seconds to wait before retrying. Mirrors `error.retry_after_seconds`.",
+        "schema": { "type": "integer", "example": 60 }
+      },
+      "XRequestID": {
+        "description": "Unique identifier for the request. Include this when reporting issues to support.",
+        "schema": { "type": "string", "example": "req_a1b2c3d4e5f6" }
+      }
+    },
+    "schemas": {
+      "AssetClass": {
+        "type": "string",
+        "description": "Supported asset class.",
+        "enum": ["stock", "crypto", "prediction_market"],
+        "example": "stock"
+      },
+      "Tier": {
+        "type": "string",
+        "description": "Subscription tier for the API key.",
+        "enum": ["free", "starter", "pro", "enterprise"],
+        "example": "starter"
+      },
+      "ProviderName": {
+        "type": "string",
+        "description": "Upstream data provider identifier.",
+        "enum": ["fmp", "twelve_data", "coingecko", "polymarket"],
+        "example": "fmp"
+      },
+      "Source": {
+        "type": "object",
+        "description": "Upstream provider that resolved the request.",
+        "properties": {
+          "provider": {
+            "$ref": "#/components/schemas/ProviderName"
+          },
+          "fallback_provider": {
+            "description": "Provider used as a fallback if the primary failed; `null` when the primary succeeded.",
+            "type": "string",
+            "nullable": true,
+            "enum": ["fmp", "twelve_data", "coingecko", "polymarket", null],
+            "example": null
+          }
+        },
+        "required": ["provider"]
+      },
+      "Freshness": {
+        "type": "object",
+        "description": "Freshness metadata for the response. Use to decide whether to re-fetch or to honor a cache.",
+        "properties": {
+          "as_of": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Timestamp the upstream data was produced.",
+            "example": "2026-05-16T19:59:58Z"
+          },
+          "is_stale": {
+            "type": "boolean",
+            "description": "`true` if the data is older than the source's freshness threshold.",
+            "example": false
+          },
+          "is_delayed": {
+            "type": "boolean",
+            "description": "`true` if the data is intentionally delayed (e.g. free-tier 15-min delayed stock quotes).",
+            "example": false
+          },
+          "cache_ttl_seconds": {
+            "type": "integer",
+            "description": "Suggested client-side cache TTL in seconds.",
+            "minimum": 0,
+            "example": 5
+          }
+        },
+        "required": ["as_of", "is_stale", "is_delayed"]
+      },
+      "RateLimit": {
+        "type": "object",
+        "description": "Rate-limit state for the API key.",
+        "properties": {
+          "limit": {
+            "type": "integer",
+            "description": "Maximum requests allowed in the current window.",
+            "example": 1000
+          },
+          "remaining": {
+            "type": "integer",
+            "description": "Requests remaining in the current window.",
+            "example": 986
+          },
+          "reset_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Timestamp when the current window resets.",
+            "example": "2026-05-17T00:00:00Z"
+          },
+          "tier": {
+            "$ref": "#/components/schemas/Tier"
+          },
+          "retry_after_seconds": {
+            "type": "integer",
+            "description": "Seconds to wait before retrying — present when rate-limited.",
+            "minimum": 0,
+            "nullable": true,
+            "example": null
+          }
+        },
+        "required": ["limit", "remaining", "reset_at", "tier"]
+      },
+      "ResponseMeta": {
+        "type": "object",
+        "description": "Standard response metadata envelope shared by every Kapit response.",
+        "properties": {
+          "request_id": {
+            "type": "string",
+            "description": "Unique identifier for this request. Mirror of the `X-Request-ID` header.",
+            "example": "req_a1b2c3d4e5f6"
+          },
+          "fetched_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Timestamp when Kapit produced the response.",
+            "example": "2026-05-16T19:59:59Z"
+          },
+          "source": { "$ref": "#/components/schemas/Source" },
+          "freshness": { "$ref": "#/components/schemas/Freshness" },
+          "rate_limit": { "$ref": "#/components/schemas/RateLimit" }
+        },
+        "required": ["request_id", "fetched_at"]
+      },
+      "StockAsset": {
+        "type": "object",
+        "description": "Equity asset descriptor.",
+        "properties": {
+          "symbol": { "type": "string", "description": "Exchange ticker.", "example": "AAPL" },
+          "name": { "type": "string", "description": "Issuer name.", "example": "Apple Inc." },
+          "asset_class": {
+            "type": "string",
+            "enum": ["stock"],
+            "example": "stock"
+          },
+          "exchange": {
+            "type": "string",
+            "description": "Listing exchange (e.g. NASDAQ, NYSE).",
+            "example": "NASDAQ"
+          },
+          "currency": {
+            "type": "string",
+            "description": "ISO-4217 currency code for the price.",
+            "example": "USD"
+          }
+        },
+        "required": ["symbol", "asset_class", "currency"]
+      },
+      "StockQuote": {
+        "type": "object",
+        "description": "Real-time equity quote.",
+        "properties": {
+          "asset": { "$ref": "#/components/schemas/StockAsset" },
+          "price": {
+            "type": "number",
+            "format": "double",
+            "description": "Latest traded price.",
+            "example": 214.32
+          },
+          "change": {
+            "type": "number",
+            "format": "double",
+            "description": "Absolute change since previous close.",
+            "example": 1.84
+          },
+          "change_percent": {
+            "type": "number",
+            "format": "double",
+            "description": "Percentage change since previous close.",
+            "example": 0.866
+          },
+          "previous_close": {
+            "type": "number",
+            "format": "double",
+            "example": 212.48
+          },
+          "open": {
+            "type": "number",
+            "format": "double",
+            "example": 213.10
+          },
+          "day_high": {
+            "type": "number",
+            "format": "double",
+            "example": 215.05
+          },
+          "day_low": {
+            "type": "number",
+            "format": "double",
+            "example": 212.71
+          },
+          "volume": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Cumulative day volume.",
+            "example": 48213900
+          },
+          "market_cap": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Market capitalization in the asset's currency.",
+            "nullable": true,
+            "example": 3284000000000
+          },
+          "as_of": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Timestamp of the underlying tick.",
+            "example": "2026-05-16T19:59:58Z"
+          }
+        },
+        "required": ["asset", "price", "as_of"]
+      },
+      "StockQuoteEnvelope": {
+        "type": "object",
+        "description": "Envelope wrapping a stock quote response.",
+        "properties": {
+          "data": { "$ref": "#/components/schemas/StockQuote" },
+          "meta": { "$ref": "#/components/schemas/ResponseMeta" }
+        },
+        "required": ["data", "meta"]
+      },
+      "CryptoAsset": {
+        "type": "object",
+        "description": "Cryptocurrency asset descriptor.",
+        "properties": {
+          "symbol": {
+            "type": "string",
+            "description": "CoinGecko coin ID.",
+            "example": "bitcoin"
+          },
+          "ticker": {
+            "type": "string",
+            "description": "Common exchange ticker (display only).",
+            "example": "BTC"
+          },
+          "name": {
+            "type": "string",
+            "example": "Bitcoin"
+          },
+          "asset_class": {
+            "type": "string",
+            "enum": ["crypto"],
+            "example": "crypto"
+          },
+          "currency": {
+            "type": "string",
+            "description": "ISO-4217 quote currency.",
+            "example": "USD"
+          }
+        },
+        "required": ["symbol", "asset_class", "currency"]
+      },
+      "CryptoPrice": {
+        "type": "object",
+        "description": "Real-time crypto price.",
+        "properties": {
+          "asset": { "$ref": "#/components/schemas/CryptoAsset" },
+          "price": {
+            "type": "number",
+            "format": "double",
+            "example": 67342.18
+          },
+          "change_24h": {
+            "type": "number",
+            "format": "double",
+            "description": "Absolute 24h price change.",
+            "example": 812.47
+          },
+          "change_percent_24h": {
+            "type": "number",
+            "format": "double",
+            "description": "Percent 24h price change.",
+            "example": 1.22
+          },
+          "market_cap": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true,
+            "example": 1329000000000
+          },
+          "volume_24h": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Trailing 24h trading volume in the quote currency.",
+            "example": 28412000000
+          },
+          "circulating_supply": {
+            "type": "number",
+            "format": "double",
+            "nullable": true,
+            "example": 19735000
+          },
+          "total_supply": {
+            "type": "number",
+            "format": "double",
+            "nullable": true,
+            "example": 21000000
+          },
+          "max_supply": {
+            "type": "number",
+            "format": "double",
+            "nullable": true,
+            "example": 21000000
+          },
+          "as_of": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2026-05-16T19:59:55Z"
+          }
+        },
+        "required": ["asset", "price", "as_of"]
+      },
+      "CryptoPriceEnvelope": {
+        "type": "object",
+        "description": "Envelope wrapping a crypto price response.",
+        "properties": {
+          "data": { "$ref": "#/components/schemas/CryptoPrice" },
+          "meta": { "$ref": "#/components/schemas/ResponseMeta" }
+        },
+        "required": ["data", "meta"]
+      },
+      "OrderBookLevel": {
+        "type": "object",
+        "description": "Single price level in the order book.",
+        "properties": {
+          "price": {
+            "type": "number",
+            "format": "double",
+            "description": "Price as a probability between 0.0 and 1.0.",
+            "minimum": 0,
+            "maximum": 1,
+            "example": 0.61
+          },
+          "size": {
+            "type": "number",
+            "format": "double",
+            "description": "Notional size at this level in USD.",
+            "minimum": 0,
+            "example": 1500
+          }
+        },
+        "required": ["price", "size"]
+      },
+      "OrderBook": {
+        "type": "object",
+        "description": "Top-of-book snapshot for a single outcome.",
+        "properties": {
+          "bids": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/OrderBookLevel" }
+          },
+          "asks": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/OrderBookLevel" }
+          }
+        },
+        "required": ["bids", "asks"]
+      },
+      "PredictionMarketOutcome": {
+        "type": "object",
+        "description": "A single outcome within a prediction market.",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Human-readable outcome label (e.g. `YES`, `NO`, or a candidate name).",
+            "example": "YES"
+          },
+          "price": {
+            "type": "number",
+            "format": "double",
+            "description": "Latest market price for this outcome, expressed as a probability between 0.0 and 1.0.",
+            "minimum": 0,
+            "maximum": 1,
+            "example": 0.62
+          },
+          "implied_probability": {
+            "type": "number",
+            "format": "double",
+            "description": "Implied probability of this outcome resolving YES. Equivalent to `price`.",
+            "minimum": 0,
+            "maximum": 1,
+            "example": 0.62
+          },
+          "last_trade_price": {
+            "type": "number",
+            "format": "double",
+            "minimum": 0,
+            "maximum": 1,
+            "nullable": true,
+            "example": 0.62
+          },
+          "order_book": {
+            "type": "object",
+            "nullable": true,
+            "description": "Order book snapshot for this outcome. Present only when `include_order_book=true`.",
+            "properties": {
+              "bids": {
+                "type": "array",
+                "items": { "$ref": "#/components/schemas/OrderBookLevel" }
+              },
+              "asks": {
+                "type": "array",
+                "items": { "$ref": "#/components/schemas/OrderBookLevel" }
+              }
+            },
+            "required": ["bids", "asks"]
+          }
+        },
+        "required": ["name", "price", "implied_probability"]
+      },
+      "PredictionMarket": {
+        "type": "object",
+        "description": "Polymarket prediction market.",
+        "properties": {
+          "market_id": {
+            "type": "string",
+            "description": "URL-friendly market slug.",
+            "example": "will-bitcoin-exceed-100k-by-dec-31-2026"
+          },
+          "numeric_id": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Numeric Polymarket market ID.",
+            "nullable": true,
+            "example": 12345
+          },
+          "question": {
+            "type": "string",
+            "description": "Headline question for the market.",
+            "example": "Will Bitcoin exceed $100,000 by Dec 31, 2026?"
+          },
+          "description": {
+            "type": "string",
+            "description": "Full market description, including resolution criteria.",
+            "nullable": true,
+            "example": "This market resolves YES if the price of Bitcoin (BTC/USD) closes at or above $100,000 on any major exchange on or before Dec 31, 2026."
+          },
+          "category": {
+            "type": "string",
+            "description": "Polymarket category (e.g. Crypto, Politics, Sports).",
+            "nullable": true,
+            "example": "Crypto"
+          },
+          "asset_class": {
+            "type": "string",
+            "enum": ["prediction_market"],
+            "example": "prediction_market"
+          },
+          "status": {
+            "type": "string",
+            "enum": ["open", "closed", "resolved"],
+            "description": "Lifecycle state of the market.",
+            "example": "open"
+          },
+          "is_resolved": {
+            "type": "boolean",
+            "description": "`true` if the market has resolved to a final outcome.",
+            "example": false
+          },
+          "resolved_outcome": {
+            "type": "string",
+            "description": "Name of the resolved outcome — present only when `is_resolved=true`.",
+            "nullable": true,
+            "example": null
+          },
+          "end_date": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Scheduled market close / resolution time.",
+            "nullable": true,
+            "example": "2026-12-31T23:59:59Z"
+          },
+          "volume_usd": {
+            "type": "number",
+            "format": "double",
+            "description": "Cumulative volume in USD.",
+            "minimum": 0,
+            "example": 4821934.55
+          },
+          "liquidity_usd": {
+            "type": "number",
+            "format": "double",
+            "description": "Current on-book liquidity in USD.",
+            "minimum": 0,
+            "example": 184321.10
+          },
+          "outcomes": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/PredictionMarketOutcome" }
+          },
+          "as_of": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2026-05-16T19:59:50Z"
+          }
+        },
+        "required": ["market_id", "question", "asset_class", "status", "is_resolved", "outcomes", "as_of"]
+      },
+      "PredictionMarketEnvelope": {
+        "type": "object",
+        "description": "Envelope wrapping a prediction market response.",
+        "properties": {
+          "data": { "$ref": "#/components/schemas/PredictionMarket" },
+          "meta": { "$ref": "#/components/schemas/ResponseMeta" }
+        },
+        "required": ["data", "meta"]
+      },
+      "Usage": {
+        "type": "object",
+        "description": "Current usage and rate-limit state.",
+        "properties": {
+          "tier": { "$ref": "#/components/schemas/Tier" },
+          "limit": {
+            "type": "integer",
+            "description": "Maximum requests allowed in the current window.",
+            "example": 1000
+          },
+          "used": {
+            "type": "integer",
+            "description": "Requests consumed in the current window.",
+            "example": 14
+          },
+          "remaining": {
+            "type": "integer",
+            "description": "Requests remaining in the current window.",
+            "example": 986
+          },
+          "reset_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Timestamp when the current window resets.",
+            "example": "2026-05-17T00:00:00Z"
+          },
+          "window": {
+            "type": "string",
+            "enum": ["daily"],
+            "description": "Rate-limit window length.",
+            "example": "daily"
+          }
+        },
+        "required": ["tier", "limit", "used", "remaining", "reset_at", "window"]
+      },
+      "UsageEnvelope": {
+        "type": "object",
+        "description": "Envelope wrapping a usage response.",
+        "properties": {
+          "data": { "$ref": "#/components/schemas/Usage" },
+          "meta": { "$ref": "#/components/schemas/ResponseMeta" }
+        },
+        "required": ["data", "meta"]
+      },
+      "ErrorCode": {
+        "type": "string",
+        "description": "Machine-readable error code. Match on this — never on `message`.",
+        "enum": [
+          "invalid_request",
+          "authentication_error",
+          "permission_denied",
+          "rate_limited",
+          "symbol_not_found",
+          "market_not_found",
+          "not_found",
+          "upstream_error",
+          "upstream_rate_limited",
+          "upstream_timeout",
+          "upstream_bad_response",
+          "internal_error",
+          "unsupported_asset_class"
+        ],
+        "example": "rate_limited"
+      },
+      "RecoveryAction": {
+        "type": "string",
+        "description": "Recommended programmatic recovery action.",
+        "enum": [
+          "change_parameter",
+          "authenticate",
+          "upgrade_plan",
+          "wait_and_retry",
+          "retry",
+          "report_request_id",
+          "do_not_retry"
+        ],
+        "example": "wait_and_retry"
+      },
+      "BackoffStrategy": {
+        "type": "string",
+        "description": "Backoff strategy for retriable errors.",
+        "enum": ["none", "fixed", "exponential"],
+        "example": "fixed"
+      },
+      "ErrorRecovery": {
+        "type": "object",
+        "description": "Structured recovery plan for autonomous agents.",
+        "properties": {
+          "action": { "$ref": "#/components/schemas/RecoveryAction" },
+          "backoff_strategy": { "$ref": "#/components/schemas/BackoffStrategy" },
+          "max_retries": {
+            "type": "integer",
+            "description": "Recommended maximum retry attempts.",
+            "minimum": 0,
+            "example": 3
+          },
+          "retry_after_seconds": {
+            "type": "integer",
+            "description": "Seconds to wait before retrying — present when `action` is `wait_and_retry` or `retry`.",
+            "minimum": 0,
+            "nullable": true,
+            "example": 60
+          },
+          "guidance": {
+            "type": "string",
+            "description": "Human-readable explanation of the recommended recovery.",
+            "example": "You have exceeded your tier's request limit. Wait for the window to reset, or upgrade your plan."
+          }
+        },
+        "required": ["action", "backoff_strategy", "max_retries", "guidance"]
+      },
+      "AttemptedProvider": {
+        "type": "object",
+        "description": "An upstream provider Kapit attempted before returning this error.",
+        "properties": {
+          "provider": { "$ref": "#/components/schemas/ProviderName" },
+          "status_code": {
+            "type": "integer",
+            "description": "HTTP status code returned by the upstream provider.",
+            "example": 404
+          },
+          "is_retriable": {
+            "type": "boolean",
+            "description": "`true` if Kapit considered this upstream failure retriable.",
+            "example": false
+          }
+        },
+        "required": ["provider", "status_code", "is_retriable"]
+      },
+      "ErrorContext": {
+        "type": "object",
+        "description": "Additional debug context for the error.",
+        "properties": {
+          "method": {
+            "type": "string",
+            "description": "HTTP method of the failed request.",
+            "example": "GET"
+          },
+          "path": {
+            "type": "string",
+            "description": "Path of the failed request.",
+            "example": "/v1/stocks/quotes/AAPL"
+          },
+          "status_code": {
+            "type": "integer",
+            "description": "HTTP status code returned to the client.",
+            "example": 429
+          },
+          "param": {
+            "type": "string",
+            "description": "Name of the parameter that caused the error, if applicable.",
+            "nullable": true,
+            "example": "symbol"
+          },
+          "provider": {
+            "type": "string",
+            "nullable": true,
+            "enum": ["fmp", "twelve_data", "coingecko", "polymarket", null],
+            "description": "Last upstream provider attempted."
+          },
+          "primary_provider": {
+            "type": "string",
+            "nullable": true,
+            "enum": ["fmp", "twelve_data", "coingecko", "polymarket", null]
+          },
+          "fallback_provider": {
+            "type": "string",
+            "nullable": true,
+            "enum": ["fmp", "twelve_data", "coingecko", "polymarket", null]
+          },
+          "attempted_providers": {
+            "type": "array",
+            "description": "Ordered list of upstream providers Kapit tried for this request.",
+            "items": { "$ref": "#/components/schemas/AttemptedProvider" }
+          },
+          "rate_limit": { "$ref": "#/components/schemas/RateLimit" }
+        }
+      },
+      "ErrorDetail": {
+        "type": "object",
+        "description": "Structured error detail. Agents should match on `code` and follow `recovery.action`.",
+        "properties": {
+          "code": { "$ref": "#/components/schemas/ErrorCode" },
+          "message": {
+            "type": "string",
+            "description": "Human-readable error message. Do not match on this — match on `code`.",
+            "example": "Rate limit exceeded"
+          },
+          "retryable": {
+            "type": "boolean",
+            "description": "Convenience flag — `true` if the request can be retried after the recovery action.",
+            "example": true
+          },
+          "is_retriable": {
+            "type": "boolean",
+            "description": "Alias of `retryable` kept for backward compatibility.",
+            "example": true
+          },
+          "doc_url": {
+            "type": "string",
+            "format": "uri",
+            "description": "URL to the docs page describing this error.",
+            "example": "https://docs.kapit.dev/errors/rate-limited"
+          },
+          "retry_after_seconds": {
+            "type": "integer",
+            "description": "Seconds to wait before retrying. Present on `rate_limited`, `upstream_*`, and `internal_error`.",
+            "minimum": 0,
+            "nullable": true,
+            "example": 60
+          },
+          "param": {
+            "type": "string",
+            "description": "Name of the offending parameter, if any.",
+            "nullable": true,
+            "example": null
+          },
+          "recovery": { "$ref": "#/components/schemas/ErrorRecovery" },
+          "context": { "$ref": "#/components/schemas/ErrorContext" }
+        },
+        "required": ["code", "message", "retryable", "recovery"]
+      },
+      "ErrorResponse": {
+        "type": "object",
+        "description": "Standard Kapit error envelope. Always returned for non-2xx responses.",
+        "properties": {
+          "error": { "$ref": "#/components/schemas/ErrorDetail" },
+          "meta": { "$ref": "#/components/schemas/ResponseMeta" }
+        },
+        "required": ["error"]
+      }
+    },
+    "responses": {
+      "InvalidRequest": {
+        "description": "The request is malformed or missing required parameters. Fix the parameter and retry.",
+        "headers": {
+          "X-Request-ID": { "$ref": "#/components/headers/XRequestID" }
+        },
+        "content": {
+          "application/json": {
+            "schema": { "$ref": "#/components/schemas/ErrorResponse" },
+            "example": {
+              "error": {
+                "code": "invalid_request",
+                "message": "Invalid request: Field required",
+                "retryable": false,
+                "is_retriable": false,
+                "doc_url": "https://docs.kapit.dev/errors/invalid-request",
+                "param": "symbol",
+                "recovery": {
+                  "action": "change_parameter",
+                  "backoff_strategy": "none",
+                  "max_retries": 0,
+                  "retry_after_seconds": null,
+                  "guidance": "Check the endpoint documentation for required parameters, valid values, and accepted formats. Fix the invalid parameter and retry."
+                }
+              },
+              "meta": {
+                "request_id": "req_invalid_001",
+                "fetched_at": "2026-05-16T19:59:59Z"
+              }
+            }
+          }
+        }
+      },
+      "UnsupportedAssetClass": {
+        "description": "The requested asset class is not supported. Kapit supports stocks, crypto, and prediction markets only.",
+        "headers": {
+          "X-Request-ID": { "$ref": "#/components/headers/XRequestID" }
+        },
+        "content": {
+          "application/json": {
+            "schema": { "$ref": "#/components/schemas/ErrorResponse" },
+            "example": {
+              "error": {
+                "code": "unsupported_asset_class",
+                "message": "The requested asset class is not supported.",
+                "retryable": false,
+                "is_retriable": false,
+                "doc_url": "https://docs.kapit.dev/errors/unsupported-asset-class",
+                "recovery": {
+                  "action": "do_not_retry",
+                  "backoff_strategy": "none",
+                  "max_retries": 0,
+                  "guidance": "Kapit currently supports stocks, crypto, and prediction markets. Check that you are using a supported endpoint."
+                }
+              },
+              "meta": {
+                "request_id": "req_unsupported_001",
+                "fetched_at": "2026-05-16T19:59:59Z"
+              }
+            }
+          }
+        }
+      },
+      "AuthenticationError": {
+        "description": "Missing or invalid `Authorization: Bearer` header. No retries until auth is fixed.",
+        "headers": {
+          "X-Request-ID": { "$ref": "#/components/headers/XRequestID" }
+        },
+        "content": {
+          "application/json": {
+            "schema": { "$ref": "#/components/schemas/ErrorResponse" },
+            "example": {
+              "error": {
+                "code": "authentication_error",
+                "message": "Missing or invalid Authorization header. Expected: Bearer kap_live_xxx",
+                "retryable": false,
+                "is_retriable": false,
+                "doc_url": "https://docs.kapit.dev/errors/authentication-error",
+                "recovery": {
+                  "action": "authenticate",
+                  "backoff_strategy": "none",
+                  "max_retries": 0,
+                  "guidance": "Include an 'Authorization: Bearer kap_live_xxx' header in every request. Do not use other auth schemes (no OAuth, no API-key header, no query param)."
+                }
+              },
+              "meta": {
+                "request_id": "req_auth_001",
+                "fetched_at": "2026-05-16T19:59:59Z"
+              }
+            }
+          }
+        }
+      },
+      "PermissionDenied": {
+        "description": "API key is valid but the account tier does not allow access to this resource. Upgrade required.",
+        "headers": {
+          "X-Request-ID": { "$ref": "#/components/headers/XRequestID" }
+        },
+        "content": {
+          "application/json": {
+            "schema": { "$ref": "#/components/schemas/ErrorResponse" },
+            "example": {
+              "error": {
+                "code": "permission_denied",
+                "message": "Your API key does not have permission for this resource.",
+                "retryable": false,
+                "is_retriable": false,
+                "doc_url": "https://docs.kapit.dev/errors/permission-denied",
+                "recovery": {
+                  "action": "upgrade_plan",
+                  "backoff_strategy": "none",
+                  "max_retries": 0,
+                  "guidance": "Check that your API key tier supports this endpoint. Upgrade your plan at https://kapit.dev/dashboard if needed."
+                }
+              },
+              "meta": {
+                "request_id": "req_perm_001",
+                "fetched_at": "2026-05-16T19:59:59Z"
+              }
+            }
+          }
+        }
+      },
+      "SymbolNotFound": {
+        "description": "No upstream provider could resolve the requested symbol. For crypto, ensure you are using a CoinGecko coin ID (e.g. `bitcoin`) not a ticker (e.g. `BTC`).",
+        "headers": {
+          "X-Request-ID": { "$ref": "#/components/headers/XRequestID" }
+        },
+        "content": {
+          "application/json": {
+            "schema": { "$ref": "#/components/schemas/ErrorResponse" },
+            "example": {
+              "error": {
+                "code": "symbol_not_found",
+                "message": "Symbol 'NONEXISTENT' not found",
+                "retryable": false,
+                "is_retriable": false,
+                "doc_url": "https://docs.kapit.dev/errors/symbol-not-found",
+                "param": "symbol",
+                "recovery": {
+                  "action": "change_parameter",
+                  "backoff_strategy": "none",
+                  "max_retries": 0,
+                  "guidance": "For crypto, use CoinGecko coin IDs (bitcoin, ethereum) not tickers (BTC, ETH). Verify the symbol is correct and try again."
+                },
+                "context": {
+                  "param": "symbol",
+                  "provider": "fmp",
+                  "primary_provider": "fmp",
+                  "fallback_provider": "twelve_data",
+                  "attempted_providers": [
+                    { "provider": "fmp", "status_code": 404, "is_retriable": false },
+                    { "provider": "twelve_data", "status_code": 404, "is_retriable": false }
+                  ]
+                }
+              },
+              "meta": {
+                "request_id": "req_symbol_001",
+                "fetched_at": "2026-05-16T19:59:59Z"
+              }
+            }
+          }
+        }
+      },
+      "MarketNotFound": {
+        "description": "The requested Polymarket market could not be resolved. The market may be closed, resolved, or the slug/ID may be wrong.",
+        "headers": {
+          "X-Request-ID": { "$ref": "#/components/headers/XRequestID" }
+        },
+        "content": {
+          "application/json": {
+            "schema": { "$ref": "#/components/schemas/ErrorResponse" },
+            "example": {
+              "error": {
+                "code": "market_not_found",
+                "message": "Market '999999' not found",
+                "retryable": false,
+                "is_retriable": false,
+                "doc_url": "https://docs.kapit.dev/errors/market-not-found",
+                "param": "market_id",
+                "recovery": {
+                  "action": "change_parameter",
+                  "backoff_strategy": "none",
+                  "max_retries": 0,
+                  "guidance": "Check the market_id — it may be a numeric ID or a URL slug. The market may be closed, resolved, or nonexistent."
+                }
+              },
+              "meta": {
+                "request_id": "req_market_001",
+                "fetched_at": "2026-05-16T19:59:59Z"
+              }
+            }
+          }
+        }
+      },
+      "NotFound": {
+        "description": "Generic 404 — the requested resource was not found at this path.",
+        "headers": {
+          "X-Request-ID": { "$ref": "#/components/headers/XRequestID" }
+        },
+        "content": {
+          "application/json": {
+            "schema": { "$ref": "#/components/schemas/ErrorResponse" },
+            "example": {
+              "error": {
+                "code": "not_found",
+                "message": "The requested resource was not found.",
+                "retryable": false,
+                "is_retriable": false,
+                "doc_url": "https://docs.kapit.dev/errors/not-found",
+                "recovery": {
+                  "action": "change_parameter",
+                  "backoff_strategy": "none",
+                  "max_retries": 0,
+                  "guidance": "Check the resource identifier and try again."
+                }
+              },
+              "meta": {
+                "request_id": "req_404_001",
+                "fetched_at": "2026-05-16T19:59:59Z"
+              }
+            }
+          }
+        }
+      },
+      "RateLimited": {
+        "description": "Your API key exceeded its rate limit. Wait for `retry_after_seconds`, then retry — or upgrade your plan.",
+        "headers": {
+          "X-RateLimit-Limit": { "$ref": "#/components/headers/XRateLimitLimit" },
+          "X-RateLimit-Remaining": { "$ref": "#/components/headers/XRateLimitRemaining" },
+          "X-RateLimit-Reset": { "$ref": "#/components/headers/XRateLimitReset" },
+          "X-Retry-After": { "$ref": "#/components/headers/XRetryAfter" },
+          "X-Request-ID": { "$ref": "#/components/headers/XRequestID" }
+        },
+        "content": {
+          "application/json": {
+            "schema": { "$ref": "#/components/schemas/ErrorResponse" },
+            "example": {
+              "error": {
+                "code": "rate_limited",
+                "message": "Rate limit exceeded",
+                "retryable": true,
+                "is_retriable": true,
+                "doc_url": "https://docs.kapit.dev/errors/rate-limited",
+                "retry_after_seconds": 60,
+                "param": null,
+                "recovery": {
+                  "action": "wait_and_retry",
+                  "backoff_strategy": "fixed",
+                  "max_retries": 3,
+                  "retry_after_seconds": 60,
+                  "guidance": "You have exceeded your tier's request limit. Wait for the window to reset, or upgrade your plan."
+                },
+                "context": {
+                  "method": "GET",
+                  "path": "/v1/stocks/quotes/AAPL",
+                  "status_code": 429,
+                  "rate_limit": {
+                    "limit": 100,
+                    "remaining": 0,
+                    "reset_at": "2026-05-17T00:00:00Z",
+                    "tier": "free",
+                    "retry_after_seconds": 86370
+                  }
+                }
+              },
+              "meta": {
+                "request_id": "req_rl_001",
+                "fetched_at": "2026-05-16T19:59:59Z"
+              }
+            }
+          }
+        }
+      },
+      "InternalError": {
+        "description": "Unexpected internal error on Kapit's side. Retry with exponential backoff; if it persists, report `meta.request_id` to support.",
+        "headers": {
+          "X-Request-ID": { "$ref": "#/components/headers/XRequestID" }
+        },
+        "content": {
+          "application/json": {
+            "schema": { "$ref": "#/components/schemas/ErrorResponse" },
+            "example": {
+              "error": {
+                "code": "internal_error",
+                "message": "An unexpected internal error occurred. Our team has been notified.",
+                "retryable": true,
+                "is_retriable": true,
+                "doc_url": "https://docs.kapit.dev/errors/internal-error",
+                "retry_after_seconds": 30,
+                "recovery": {
+                  "action": "report_request_id",
+                  "backoff_strategy": "exponential",
+                  "max_retries": 2,
+                  "retry_after_seconds": 30,
+                  "guidance": "Something went wrong on Kapit's side. Retry the request. If the error persists, report the request_id to support."
+                }
+              },
+              "meta": {
+                "request_id": "req_a1b2c3d4e5f6",
+                "fetched_at": "2026-05-16T19:59:59Z"
+              }
+            }
+          }
+        }
+      },
+      "UpstreamError": {
+        "description": "An upstream data provider returned a 5xx, was rate-limited, or returned malformed data. Most are retriable with the indicated backoff.",
+        "headers": {
+          "X-Request-ID": { "$ref": "#/components/headers/XRequestID" },
+          "X-Retry-After": { "$ref": "#/components/headers/XRetryAfter" }
+        },
+        "content": {
+          "application/json": {
+            "schema": { "$ref": "#/components/schemas/ErrorResponse" },
+            "examples": {
+              "upstream_error": {
+                "summary": "Upstream 5xx",
+                "value": {
+                  "error": {
+                    "code": "upstream_error",
+                    "message": "Upstream HTTP 503: Service Unavailable",
+                    "retryable": true,
+                    "is_retriable": true,
+                    "doc_url": "https://docs.kapit.dev/errors/upstream-error",
+                    "retry_after_seconds": 30,
+                    "recovery": {
+                      "action": "wait_and_retry",
+                      "backoff_strategy": "exponential",
+                      "max_retries": 3,
+                      "retry_after_seconds": 5,
+                      "guidance": "The upstream provider is experiencing issues. Retry with exponential backoff."
+                    },
+                    "context": {
+                      "attempted_providers": [
+                        { "provider": "fmp", "status_code": 503, "is_retriable": true }
+                      ]
+                    }
+                  },
+                  "meta": {
+                    "request_id": "req_upstream_001",
+                    "fetched_at": "2026-05-16T19:59:59Z"
+                  }
+                }
+              },
+              "upstream_rate_limited": {
+                "summary": "Upstream 429",
+                "value": {
+                  "error": {
+                    "code": "upstream_rate_limited",
+                    "message": "Upstream HTTP 429: Too Many Requests",
+                    "retryable": true,
+                    "is_retriable": true,
+                    "doc_url": "https://docs.kapit.dev/errors/upstream-rate-limited",
+                    "retry_after_seconds": 30,
+                    "recovery": {
+                      "action": "wait_and_retry",
+                      "backoff_strategy": "fixed",
+                      "max_retries": 2,
+                      "retry_after_seconds": 30,
+                      "guidance": "Kapit's upstream provider is rate-limited. This is NOT your Kapit rate limit. Wait and retry."
+                    }
+                  },
+                  "meta": {
+                    "request_id": "req_upstream_429",
+                    "fetched_at": "2026-05-16T19:59:59Z"
+                  }
+                }
+              },
+              "upstream_bad_response": {
+                "summary": "Upstream malformed payload",
+                "value": {
+                  "error": {
+                    "code": "upstream_bad_response",
+                    "message": "Malformed upstream response: 'price' is missing",
+                    "retryable": true,
+                    "is_retriable": true,
+                    "doc_url": "https://docs.kapit.dev/errors/upstream-bad-response",
+                    "retry_after_seconds": 5,
+                    "recovery": {
+                      "action": "retry",
+                      "backoff_strategy": "fixed",
+                      "max_retries": 1,
+                      "retry_after_seconds": 5,
+                      "guidance": "The upstream provider returned a response that Kapit could not parse. One retry is recommended."
+                    }
+                  },
+                  "meta": {
+                    "request_id": "req_upstream_bad",
+                    "fetched_at": "2026-05-16T19:59:59Z"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "UpstreamTimeout": {
+        "description": "An upstream data provider did not respond within the timeout window (10s). Retry with exponential backoff.",
+        "headers": {
+          "X-Request-ID": { "$ref": "#/components/headers/XRequestID" },
+          "X-Retry-After": { "$ref": "#/components/headers/XRetryAfter" }
+        },
+        "content": {
+          "application/json": {
+            "schema": { "$ref": "#/components/schemas/ErrorResponse" },
+            "example": {
+              "error": {
+                "code": "upstream_timeout",
+                "message": "Upstream timeout after 10.0s",
+                "retryable": true,
+                "is_retriable": true,
+                "doc_url": "https://docs.kapit.dev/errors/upstream-timeout",
+                "retry_after_seconds": 5,
+                "recovery": {
+                  "action": "wait_and_retry",
+                  "backoff_strategy": "exponential",
+                  "max_retries": 2,
+                  "retry_after_seconds": 5,
+                  "guidance": "The upstream provider did not respond in time. This is usually transient. Retry with exponential backoff."
+                }
+              },
+              "meta": {
+                "request_id": "req_timeout_001",
+                "fetched_at": "2026-05-16T19:59:59Z"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

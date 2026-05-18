@@ -192,7 +192,7 @@ export default function TryItLive() {
       <div className="max-w-6xl mx-auto px-6">
         <div className="mb-12">
           <span
-            className="font-mono text-xs text-[#00D26A] uppercase tracking-widest"
+            className="font-mono text-xs text-[#7C3AED] uppercase tracking-widest"
             style={{ fontFamily: "'JetBrains Mono', monospace" }}
           >
             TRY IT LIVE
@@ -268,7 +268,7 @@ export default function TryItLive() {
                 type="button"
                 onClick={sendRequest}
                 disabled={loading || !symbol.trim()}
-                className="w-full bg-[#00D26A] hover:bg-[#00B85C] disabled:bg-[#1C1C1C] disabled:text-[#6E6E6E] disabled:cursor-not-allowed text-[#0A0A0A] font-semibold text-sm px-4 py-3 rounded-lg transition-colors"
+                className="w-full bg-[#7C3AED] hover:bg-[#6D28D9] disabled:bg-[#1C1C1C] disabled:text-[#6E6E6E] disabled:cursor-not-allowed text-[#0A0A0A] font-semibold text-sm px-4 py-3 rounded-lg transition-colors"
               >
                 {loading ? 'Sending…' : 'Send request'}
               </button>
@@ -301,7 +301,7 @@ export default function TryItLive() {
                 style={{ fontFamily: "'JetBrains Mono', monospace" }}
               >
                 <div>
-                  <span className="text-[#00D26A]">GET</span>{' '}
+                  <span className="text-[#7C3AED]">GET</span>{' '}
                   <span className="text-[#EDEDED]">{requestPath}</span>
                 </div>
                 <div className="text-[#A1A1A1]">
@@ -324,7 +324,7 @@ export default function TryItLive() {
                     className={`text-xs px-2 py-0.5 rounded ${
                       error
                         ? 'bg-[#1C1C1C] text-[#FF6B6B] border border-[#262626]'
-                        : 'bg-[#1C1C1C] text-[#00D26A] border border-[#262626]'
+                        : 'bg-[#1C1C1C] text-[#7C3AED] border border-[#262626]'
                     }`}
                     style={{ fontFamily: "'JetBrains Mono', monospace" }}
                   >
@@ -370,7 +370,7 @@ export default function TryItLive() {
           <div className="mt-8 flex items-center justify-center">
             <a
               href="/signup"
-              className="group inline-flex items-center gap-2 text-[#00D26A] hover:text-[#00B85C] text-sm font-medium transition-colors"
+              className="group inline-flex items-center gap-2 text-[#7C3AED] hover:text-[#6D28D9] text-sm font-medium transition-colors"
             >
               Like what you see? Get your API key for unlimited access
               <span aria-hidden className="transition-transform group-hover:translate-x-0.5">

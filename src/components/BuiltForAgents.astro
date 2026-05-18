@@ -1,10 +1,10 @@
 ---
 ---
-<section class="py-24 border-b border-[#262626]">
+<section class="py-32 border-b border-[#262626]">
   <div class="max-w-6xl mx-auto px-6">
     <div class="mb-12">
-      <p class="text-xs font-mono uppercase tracking-widest text-[#00D26A] mb-4">AGENT INFRASTRUCTURE</p>
-      <h2 class="text-3xl font-bold text-[#EDEDED] tracking-tight mb-3">
+      <span class="inline-flex items-center text-xs uppercase tracking-widest text-[#6E6E6E] border border-[#262626] rounded-full px-3 py-1 mb-6" style="font-family: 'JetBrains Mono', monospace;">Infrastructure</span>
+      <h2 class="text-4xl font-bold text-[#EDEDED] tracking-tight mb-3">
         Self-documenting. Self-recovering. Self-discovering.
       </h2>
       <p class="text-[#A1A1A1] text-lg max-w-2xl">
@@ -14,87 +14,84 @@
 
     <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
       <!-- Card 1: /llms.txt -->
-      <div class="bg-[#141414] border border-[#262626] rounded-xl p-6 flex flex-col gap-4">
-        <div class="text-[#00D26A]">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <rect x="4" y="2" width="12" height="16" rx="1" stroke="currentColor" stroke-width="1.5"/>
-            <path d="M16 6h3a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1H8a1 1 0 0 1-1-1v-3" stroke="currentColor" stroke-width="1.5"/>
-            <path d="M7 8h6M7 11h6M7 14h3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+      <div class="bg-[#141414] border border-[#262626] rounded-xl p-7 flex flex-col gap-4 hover:border-[#3A3A3A] transition-colors duration-200">
+        <div class="text-[#7C3AED]">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+            <polyline points="14 2 14 8 20 8" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+            <line x1="16" y1="13" x2="8" y2="13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+            <line x1="16" y1="17" x2="8" y2="17" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
           </svg>
         </div>
         <div>
-          <h3 class="text-[#EDEDED] font-semibold mb-2">
+          <h3 class="text-[#EDEDED] font-semibold text-base mb-2">
             <code class="font-mono">/llms.txt</code>
           </h3>
           <p class="text-[#A1A1A1] text-sm leading-relaxed">
             Drop in any agent loop. Discovers every endpoint, schema, and example. Machine-readable.
           </p>
         </div>
-        <a href="/llms.txt" target="_blank" class="text-sm text-[#00D26A] hover:text-[#00e87a] transition-colors mt-auto">
+        <a href="/llms.txt" target="_blank" class="text-sm text-[#7C3AED] hover:text-[#8B5CF6] transition-colors mt-auto">
           View →
         </a>
       </div>
 
       <!-- Card 2: /openapi.json -->
-      <div class="bg-[#141414] border border-[#262626] rounded-xl p-6 flex flex-col gap-4">
-        <div class="text-[#00D26A]">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <rect x="2" y="4" width="20" height="16" rx="2" stroke="currentColor" stroke-width="1.5"/>
-            <path d="M7 9l-2 3 2 3M17 9l2 3-2 3M13 8l-2 8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+      <div class="bg-[#141414] border border-[#262626] rounded-xl p-7 flex flex-col gap-4 hover:border-[#3A3A3A] transition-colors duration-200">
+        <div class="text-[#7C3AED]">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <polyline points="16 18 22 12 16 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <polyline points="8 6 2 12 8 18" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
           </svg>
         </div>
         <div>
-          <h3 class="text-[#EDEDED] font-semibold mb-2">
+          <h3 class="text-[#EDEDED] font-semibold text-base mb-2">
             <code class="font-mono">/openapi.json</code>
           </h3>
           <p class="text-[#A1A1A1] text-sm leading-relaxed">
             Full OpenAPI 3.1 spec with agent-intent descriptions on every parameter and response field.
           </p>
         </div>
-        <a href="/openapi.json" target="_blank" class="text-sm text-[#00D26A] hover:text-[#00e87a] transition-colors mt-auto">
+        <a href="/openapi.json" target="_blank" class="text-sm text-[#7C3AED] hover:text-[#8B5CF6] transition-colors mt-auto">
           View →
         </a>
       </div>
 
       <!-- Card 3: MCP Server -->
-      <div class="bg-[#141414] border border-[#262626] rounded-xl p-6 flex flex-col gap-4">
-        <div class="text-[#00D26A]">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <rect x="2" y="4" width="20" height="16" rx="2" stroke="currentColor" stroke-width="1.5"/>
-            <path d="M2 8h20" stroke="currentColor" stroke-width="1.5"/>
-            <circle cx="5" cy="6" r="1" fill="currentColor"/>
-            <circle cx="8" cy="6" r="1" fill="currentColor"/>
-            <path d="M6 13l3 3-3 3M12 19h5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+      <div class="bg-[#141414] border border-[#262626] rounded-xl p-7 flex flex-col gap-4 hover:border-[#3A3A3A] transition-colors duration-200">
+        <div class="text-[#7C3AED]">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <polyline points="4 17 10 11 4 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <line x1="12" y1="19" x2="20" y2="19" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
           </svg>
         </div>
         <div>
-          <h3 class="text-[#EDEDED] font-semibold mb-2">
+          <h3 class="text-[#EDEDED] font-semibold text-base mb-2">
             <code class="font-mono">npx @kapit/mcp</code>
           </h3>
           <p class="text-[#A1A1A1] text-sm leading-relaxed">
             Native MCP server. Works in Claude Desktop, Cursor, Cline, and any MCP-compatible agent runtime.
           </p>
         </div>
-        <a href="/docs/mcp" class="text-sm text-[#00D26A] hover:text-[#00e87a] transition-colors mt-auto">
+        <a href="/docs/mcp" class="text-sm text-[#7C3AED] hover:text-[#8B5CF6] transition-colors mt-auto">
           Docs →
         </a>
       </div>
 
       <!-- Card 4: Structured errors -->
-      <div class="bg-[#141414] border border-[#262626] rounded-xl p-6 flex flex-col gap-4">
-        <div class="text-[#00D26A]">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M12 3L2 20h20L12 3z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
-            <path d="M12 10v4M12 17v1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+      <div class="bg-[#141414] border border-[#262626] rounded-xl p-7 flex flex-col gap-4 hover:border-[#3A3A3A] transition-colors duration-200">
+        <div class="text-[#7C3AED]">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
           </svg>
         </div>
         <div>
-          <h3 class="text-[#EDEDED] font-semibold mb-2">Recoverable errors</h3>
+          <h3 class="text-[#EDEDED] font-semibold text-base mb-2">Recoverable errors</h3>
           <p class="text-[#A1A1A1] text-sm leading-relaxed">
             Every error includes recovery instructions. Your agent knows whether to retry, wait, fix params, or stop.
           </p>
         </div>
-        <a href="/docs/errors" class="text-sm text-[#00D26A] hover:text-[#00e87a] transition-colors mt-auto">
+        <a href="/docs/errors" class="text-sm text-[#7C3AED] hover:text-[#8B5CF6] transition-colors mt-auto">
           See spec →
         </a>
       </div>

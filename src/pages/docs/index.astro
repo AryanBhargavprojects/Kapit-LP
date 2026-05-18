@@ -1,0 +1,115 @@
+---
+export const prerender = true;
+---
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Kapit API Reference</title>
+    <meta name="description" content="Complete API reference for Kapit — unified financial data API for AI agents. Stocks, crypto, and Polymarket through one endpoint." />
+    <meta name="robots" content="index, follow" />
+    <link rel="canonical" href="https://kapit.dev/docs" />
+    <meta property="og:title" content="Kapit API Reference" />
+    <meta property="og:description" content="Complete API reference for Kapit — unified financial data API for AI agents." />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://kapit.dev/docs" />
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="Kapit API Reference" />
+    <meta name="twitter:description" content="Complete API reference for Kapit — unified financial data API for AI agents." />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@scalar/api-reference/dist/style.css" />
+    <style>
+      /* Override Scalar CSS vars to match Kapit design */
+      :root {
+        --scalar-color-1: #EDEDED;
+        --scalar-color-2: #ADADAD;
+        --scalar-color-3: #8B8B8B;
+        --scalar-color-accent: #7C3AED;
+        --scalar-background-1: #0A0A0A;
+        --scalar-background-2: #111111;
+        --scalar-background-3: #1A1A1A;
+        --scalar-border-color: #262626;
+        --scalar-button-1: #7C3AED;
+        --scalar-button-1-hover: #8B5CF6;
+        --scalar-color-green: #22c55e;
+        --scalar-color-red: #ef4444;
+        --scalar-color-orange: #f97316;
+        --scalar-font: 'Inter', sans-serif;
+        --scalar-font-code: 'JetBrains Mono', monospace;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        background: #0A0A0A;
+      }
+
+      /* Top bar */
+      .kapit-topbar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 48px;
+        background: #0A0A0A;
+        border-bottom: 1px solid #262626;
+        z-index: 1000;
+        display: flex;
+        align-items: center;
+        padding: 0 24px;
+        gap: 16px;
+      }
+
+      .kapit-topbar a {
+        color: #ADADAD;
+        text-decoration: none;
+        font-size: 13px;
+        font-family: 'JetBrains Mono', monospace;
+        transition: color 0.15s ease;
+      }
+
+      .kapit-topbar a:hover {
+        color: #EDEDED;
+      }
+
+      .kapit-topbar .divider {
+        color: #333333;
+        font-size: 16px;
+        font-family: 'JetBrains Mono', monospace;
+        user-select: none;
+      }
+
+      .kapit-topbar .current {
+        color: #EDEDED;
+        font-size: 13px;
+        font-family: 'JetBrains Mono', monospace;
+      }
+
+      /* Push Scalar content below topbar */
+      .scalar-app {
+        padding-top: 48px !important;
+      }
+    </style>
+  </head>
+  <body>
+    <nav class="kapit-topbar" aria-label="Site navigation">
+      <a href="/" class="flex items-center gap-1.5">← <img src="/kapit_logo.png" alt="Kapit" style="height: 20px; width: auto; vertical-align: middle;" /></a>
+      <span class="divider" aria-hidden="true">/</span>
+      <span class="current">API Reference</span>
+    </nav>
+
+    <script
+      id="api-reference"
+      data-url="/openapi.json"
+      data-theme="deepSpace"
+      src="https://cdn.jsdelivr.net/npm/@scalar/api-reference/dist/browser/standalone.js"
+      crossorigin
+    ></script>
+  </body>
+</html>

@@ -25,6 +25,10 @@ const {
     <meta property="og:description" content={description} />
     <meta property="og:type" content="website" />
     <meta name="twitter:card" content="summary_large_image" />
+    <!-- AI/Agent discoverability -->
+    <link rel="alternate" type="text/plain" href="/?view=machine" title="Machine-readable version" />
+    <meta name="ai-content" content="machine-readable-available" />
+    <meta name="llms-txt" content="https://api.kapit.dev/llms.txt" />
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -34,6 +38,15 @@ const {
     />
   </head>
   <body class="min-h-screen bg-[#0A0A0A] text-[#EDEDED] antialiased">
+    <video
+      autoplay
+      muted
+      loop
+      playsinline
+      style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0.3; z-index: -1; pointer-events: none; transition: opacity 0.3s ease;"
+    >
+      <source src="/bg.mp4" type="video/mp4" />
+    </video>
     <slot />
   </body>
 </html>

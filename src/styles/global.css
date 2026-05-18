@@ -23,7 +23,7 @@ body {
 ::-webkit-scrollbar-thumb:hover { background: #4A4A4A; }
 
 /* Selection */
-::selection { background: rgba(0, 210, 106, 0.2); color: #EDEDED; }
+::selection { background: rgba(124, 58, 237, 0.2); color: #EDEDED; }
 
 /* Code/mono font utility */
 .font-mono {

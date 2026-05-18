@@ -1,0 +1,55 @@
+---
+---
+<div id="machine-view" class="hidden pt-20">
+  <article class="max-w-3xl mx-auto px-8 py-16" style="color: #EDEDED; font-family: 'JetBrains Mono', monospace;">
+    <h1 class="text-4xl font-bold mb-4" style="color: #EDEDED;"># Kapit</h1>
+    <p class="mb-10 text-[#ADADAD]">One API key, one schema, multi-asset access. Built for autonomous AI agents.</p>
+
+    <h2 class="text-xl font-bold mt-10 mb-3 text-[#ADADAD]">## About</h2>
+    <p class="mb-2 leading-relaxed">Kapit provides unified access to financial data across stocks, cryptocurrencies, and prediction markets.</p>
+    <p class="mb-6 leading-relaxed">Designed for AI agent builders who need reliable data without juggling multiple upstream APIs.</p>
+
+    <h2 class="text-xl font-bold mt-10 mb-3 text-[#ADADAD]">## Quick Start</h2>
+    <pre class="bg-[#141414] border border-[#1F1F1F] rounded-md px-4 py-3 mb-4 overflow-x-auto" style="font-family: 'JetBrains Mono', monospace; white-space: pre-wrap;">curl https://api.kapit.dev/v1/stocks/quotes/AAPL \
+  -H "Authorization: Bearer kap_live_xxx"</pre>
+
+    <h2 class="text-xl font-bold mt-10 mb-3 text-[#ADADAD]">## Authentication</h2>
+    <pre class="bg-[#141414] border border-[#1F1F1F] rounded-md px-4 py-3 mb-4 overflow-x-auto" style="font-family: 'JetBrains Mono', monospace; white-space: pre-wrap;">Authorization: Bearer kap_live_xxxxxxxx</pre>
+    <ul class="mb-2 space-y-1">
+      <li>- kap_live_* — production keys</li>
+      <li>- kap_test_* — test keys for development</li>
+    </ul>
+    <p class="mb-6 leading-relaxed text-[#ADADAD]">No OAuth, no redirects, no CAPTCHAs. Designed for autonomous agents.</p>
+
+    <h2 class="text-xl font-bold mt-10 mb-3 text-[#ADADAD]">## API Discovery</h2>
+    <pre class="bg-[#141414] border border-[#1F1F1F] rounded-md px-4 py-3 mb-4 overflow-x-auto" style="font-family: 'JetBrains Mono', monospace; white-space: pre-wrap;">curl https://api.kapit.dev/llms.txt</pre>
+    <p class="mb-6 leading-relaxed">Your agent will automatically discover every endpoint, schema, and example.</p>
+
+    <h2 class="text-xl font-bold mt-10 mb-3 text-[#ADADAD]">## Endpoints</h2>
+    <ul class="mb-6 space-y-2">
+      <li>- GET /v1/stocks/quotes/{`{symbol}`} — Real-time stock quote (FMP, fallback: Twelve Data)</li>
+      <li>- GET /v1/crypto/prices/{`{symbol}`} — Crypto price, 24h change, market cap (CoinGecko coin ID)</li>
+      <li>- GET /v1/polymarket/markets/{`{market_id}`} — Prediction market odds, order book, resolution</li>
+      <li>- GET /v1/usage — Current quota and rate limit status</li>
+    </ul>
+
+    <h2 class="text-xl font-bold mt-10 mb-3 text-[#ADADAD]">## Rate Limits</h2>
+    <ul class="mb-6 space-y-1">
+      <li>- Free      — 100 requests / day</li>
+      <li>- Starter   — 1,000 requests / day</li>
+      <li>- Pro       — 10,000 requests / day</li>
+      <li>- Enterprise — Custom</li>
+    </ul>
+    <p class="mb-6 leading-relaxed text-[#ADADAD]">Rate limit state is returned in every response via X-RateLimit-* headers and meta.rate_limit.</p>
+
+    <h2 class="text-xl font-bold mt-10 mb-3 text-[#ADADAD]">## Supported Agents</h2>
+    <p class="mb-2 leading-relaxed">Works natively with every major AI coding agent:</p>
+    <p class="mb-6 leading-relaxed">Claude Code, Codex, Cursor, Windsurf, Cline, Kilo Code, Hermes Agent, Opencode, OpenClaw, Pi</p>
+
+    <h2 class="text-xl font-bold mt-10 mb-3 text-[#ADADAD]">## Links</h2>
+    <p class="mb-1 leading-relaxed">[<a href="https://kapit.dev/signup" class="text-[#7C3AED] hover:underline">Get API Key</a>](https://kapit.dev/signup)</p>
+    <p class="mb-1 leading-relaxed">[<a href="https://kapit.dev/docs" class="text-[#7C3AED] hover:underline">API Reference</a>](https://kapit.dev/docs)</p>
+    <p class="mb-1 leading-relaxed">[<a href="https://kapit.dev/pricing" class="text-[#7C3AED] hover:underline">Pricing</a>](https://kapit.dev/pricing)</p>
+    <p class="mb-6 leading-relaxed">[<a href="https://github.com/aryanbhargav/kapit" class="text-[#7C3AED] hover:underline">GitHub</a>](https://github.com/aryanbhargav/kapit)</p>
+  </article>
+</div>

@@ -1,14 +1,15 @@
 ---
 ---
-<section class="py-24 border-b border-[#262626]">
+<section class="py-32 border-b border-[#262626]">
   <div class="max-w-6xl mx-auto px-6">
     <div class="mb-10">
-      <h2 class="text-3xl font-bold text-[#EDEDED] tracking-tight mb-3">Drop it into any stack</h2>
+      <span class="inline-flex items-center text-xs uppercase tracking-widest text-[#6E6E6E] border border-[#262626] rounded-full px-3 py-1 mb-6" style="font-family: 'JetBrains Mono', monospace;">Integrations</span>
+      <h2 class="text-3xl lg:text-4xl font-bold text-[#EDEDED] tracking-tight mb-3">Drop it into any stack</h2>
       <p class="text-[#A1A1A1] text-lg">Six lines. Any language. Same envelope.</p>
     </div>
 
     <div class="flex gap-1 mb-4 border-b border-[#262626] overflow-x-auto" id="code-tabs">
-      <button data-tab="curl"       class="code-tab px-4 py-2 text-sm font-medium whitespace-nowrap text-[#EDEDED] border-b-2 border-[#00D26A] -mb-px">cURL</button>
+      <button data-tab="curl"       class="code-tab px-4 py-2 text-sm font-medium whitespace-nowrap text-[#EDEDED] border-b-2 border-[#7C3AED] -mb-px">cURL</button>
       <button data-tab="python"     class="code-tab px-4 py-2 text-sm font-medium whitespace-nowrap text-[#6E6E6E] border-b-2 border-transparent -mb-px hover:text-[#A1A1A1]">Python</button>
       <button data-tab="typescript" class="code-tab px-4 py-2 text-sm font-medium whitespace-nowrap text-[#6E6E6E] border-b-2 border-transparent -mb-px hover:text-[#A1A1A1]">TypeScript</button>
       <button data-tab="openai"     class="code-tab px-4 py-2 text-sm font-medium whitespace-nowrap text-[#6E6E6E] border-b-2 border-transparent -mb-px hover:text-[#A1A1A1]">OpenAI Tool</button>
@@ -141,11 +142,11 @@ def process_tool(tool_use):
       const target = (tab as HTMLElement).getAttribute('data-tab');
 
       tabs.forEach(t => {
-        t.classList.remove('text-[#EDEDED]', 'border-[#00D26A]');
+        t.classList.remove('text-[#EDEDED]', 'border-[#7C3AED]');
         t.classList.add('text-[#6E6E6E]', 'border-transparent');
       });
       tab.classList.remove('text-[#6E6E6E]', 'border-transparent');
-      tab.classList.add('text-[#EDEDED]', 'border-[#00D26A]');
+      tab.classList.add('text-[#EDEDED]', 'border-[#7C3AED]');
 
       panels.forEach(p => p.classList.add('hidden'));
       document.getElementById(`tab-${target}`)?.classList.remove('hidden');

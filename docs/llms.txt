@@ -1,0 +1,169 @@
+# Kapit - Unified Financial Data API for AI Agents
+
+> One API key, one schema, multi-asset access. Built for autonomous AI agents.
+
+## Overview
+
+Kapit provides unified access to financial data across stocks, cryptocurrencies, and prediction markets. Designed for AI agent builders who need reliable data without juggling multiple upstream APIs.
+
+## Quick Start
+
+1. Get a Kapit API key (`kap_live_...` for production or `kap_test_...` for testing)
+2. Add `Authorization: Bearer kap_live_xxx` to every protected request
+3. Start fetching data:
+
+```bash
+curl https://api.kapit.dev/v1/stocks/quotes/AAPL \
+  -H "Authorization: Bearer kap_live_xxx"
+```
+
+## Authentication
+
+All endpoints require a Bearer token in the `Authorization` header:
+
+```
+Authorization: Bearer kap_live_xxxxxxxx
+```
+
+- `kap_live_*` — production/live keys
+- `kap_test_*` — test keys for development and smoke testing
+
+No OAuth, no redirects, no CAPTCHAs. Designed for autonomous agents.
+
+## Endpoints
+
+### Stocks
+- `GET /v1/stocks/quotes/{symbol}` — Real-time stock quote with price, change, volume. Primary: FMP, fallback: Twelve Data.
+
+### Crypto
+- `GET /v1/crypto/prices/{symbol}` — Real-time crypto price with 24h change, market cap, supply data. `symbol` must be a CoinGecko coin ID (e.g. bitcoin, ethereum), not a ticker.
+
+### Prediction Markets
+- `GET /v1/polymarket/markets/{market_id}` — Single prediction market with outcomes, implied probabilities, volume, liquidity, order book, resolution status.
+
+### Usage
+- `GET /v1/usage` — Current usage and rate limit status for the authenticated API key
+
+Successful authenticated V1 calls are recorded as usage events for quota and analytics. Supported V1 asset classes are `stock`, `crypto`, and `prediction_market`.
+
+## Rate Limits
+
+| Tier | Daily Limit |
+|------|-------------|
+| Free | 100 |
+| Starter | 1,000 |
+| Pro | 10,000 |
+| Enterprise | Custom |
+
+Rate limit state is returned in every response:
+- Headers: `X-RateLimit-Limit`, `X-RateLimit-Remaining`, `X-RateLimit-Reset`
+- Body: `meta.rate_limit` object
+
+When rate limited (429), the response includes `retry_after_seconds` — wait this long before retrying.
+
+## Error Handling
+
+Every Kapit error includes a structured recovery plan in `error.recovery`:
+
+```json
+{
+  "error": {
+    "code": "rate_limited",
+    "message": "Rate limit exceeded",
+    "doc_url": "https://docs.kapit.io/errors/rate-limited.md",
+    "is_retriable": true,
+    "retry_after_seconds": 60,
+    "param": null,
+    "recovery": {
+      "action": "wait_and_retry",
+      "backoff_strategy": "fixed",
+      "max_retries": 3,
+      "retry_after_seconds": 60,
+      "guidance": "You have exceeded your tier's request limit..."
+    },
+    "context": {
+      "method": "GET",
+      "path": "/v1/stocks/quotes/AAPL",
+      "status_code": 429,
+      "rate_limit": {
+        "limit": 100,
+        "remaining": 0,
+        "reset_at": "2026-05-14T00:00:00Z",
+        "tier": "free",
+        "retry_after_seconds": 86370
+      }
+    }
+  }
+}
+```
+
+### Error Recovery Decision Table
+
+| Code | HTTP | Retriable | Recovery Action | Backoff | Guidance |
+|------|------|-----------|-----------------|---------|----------|
+| `invalid_request` | 400 | No | `change_parameter` | none | Fix the invalid parameter and retry |
+| `authentication_error` | 401 | No | `authenticate` | none | Add `Authorization: Bearer kap_live_xxx` header |
+| `permission_denied` | 403 | No | `upgrade_plan` | none | Upgrade your plan for access |
+| `rate_limited` | 429 | Yes | `wait_and_retry` | fixed | Wait for window reset; upgrade plan |
+| `symbol_not_found` | 404 | No | `change_parameter` | none | Verify symbol; crypto uses CoinGecko IDs |
+| `market_not_found` | 404 | No | `change_parameter` | none | Verify market_id slug or numeric ID |
+| `not_found` | 404 | No | `change_parameter` | none | Check resource identifier |
+| `upstream_error` | 502 | Yes | `wait_and_retry` | exponential | Upstream provider 5xx; retry |
+| `upstream_rate_limited` | 502 | Yes | `wait_and_retry` | fixed | Upstream provider 429; retry |
+| `upstream_timeout` | 504 | Yes | `wait_and_retry` | exponential | Upstream timed out; retry |
+| `upstream_bad_response` | 502 | Yes | `retry` | fixed | Upstream data malformed; retry once |
+| `internal_error` | 500 | Yes | `report_request_id` | exponential | Kapit error; retry, then report request_id |
+| `unsupported_asset_class` | 400 | No | `do_not_retry` | none | Use stocks/crypto/polymarket endpoints only |
+
+**Key decision points for agents:**
+- Match on `error.code` (never `message`).
+- Check `error.recovery.action` for the recommended recovery strategy.
+- When `action` is `wait_and_retry`, use `recovery.retry_after_seconds` and `recovery.backoff_strategy`.
+- When `action` is `report_request_id`, capture `meta.request_id` for support.
+- `error.context.attempted_providers` shows which upstream sources were tried and how each failed.
+
+## Response Freshness
+
+Every response includes freshness metadata:
+
+```json
+{
+  "meta": {
+    "fetched_at": "2026-05-12T10:30:00Z",
+    "source": { "provider": "fmp", "fallback_provider": null },
+    "freshness": {
+      "as_of": "2026-05-12T10:30:00Z",
+      "is_stale": false,
+      "is_delayed": false
+    }
+  }
+}
+```
+
+Agents can use this to decide whether to re-fetch.
+
+## Instructions for Large Language Model Agents
+
+### Best Practices for Integrating Kapit
+
+1. **Always check rate limits** in `meta.rate_limit.remaining` before making batch requests
+2. **Respect `retry_after_seconds`** on 429 and 502 errors — don't thrash the API
+3. **Match on `error.code`** for programmatic switching — never parse `message`
+4. **Follow `error.recovery.action`** for automatic self-correction
+5. **Use `meta.freshness.is_stale`** to decide when to re-fetch
+6. **Cache responses** client-side using `meta.freshness.cache_ttl_seconds`
+7. **Don't retry non-retriable errors** (400, 401, 403, 404) — fix the request instead
+
+### Footguns to Avoid
+
+- Don't assume all stocks are on NASDAQ/NYSE — check `asset.exchange`
+- Don't cache crypto prices longer than 30 seconds — they change fast
+- Don't use prediction market prices as guarantees — they reflect probability, not certainty
+- Don't ignore `is_delayed` — free-tier stock data may be 15 minutes delayed
+- Crypto `symbol` parameter uses CoinGecko coin IDs (bitcoin, ethereum), not tickers (BTC, ETH)
+
+## Documentation
+
+- API Docs (Scalar): https://api.kapit.dev/docs
+- OpenAPI Spec: https://api.kapit.dev/openapi.json
+- Error Docs: https://docs.kapit.io/errors/
