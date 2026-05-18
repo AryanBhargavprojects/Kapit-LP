@@ -1,155 +1,207 @@
-# Kapit - Unified Financial Data API for AI Agents
-# https://kapit.dev
+# Kapit API — LLMs.txt
 
-> One API key, one schema, multi-asset access. Built for autonomous AI agents.
+Base URL: https://api.kapit.dev
 
-## Overview
-
-Kapit provides unified access to financial data across stocks, cryptocurrencies, and prediction markets. Designed for AI agent builders who need reliable data without juggling multiple upstream APIs.
-
-## Base URL
-
-https://api.kapit.dev
-
-## Quick Start
-
-1. Get a Kapit API key (kap_live_... for production or kap_test_... for testing)
-2. Add `Authorization: Bearer kap_live_xxx` to every protected request
-3. Start fetching data:
-
-  curl https://api.kapit.dev/v1/stocks/quotes/AAPL \
-    -H "Authorization: Bearer kap_live_xxx"
+Kapit is a unified financial data API built natively for AI agents.
+One API key, one schema, multi-asset access.
 
 ## Authentication
 
-All endpoints require a Bearer token in the Authorization header:
+All V1 data endpoints require an API key:
 
-  Authorization: Bearer kap_live_xxxxxxxx
+```
+Authorization: Bearer kap_live_...  (production)
+Authorization: Bearer kap_test_...  (sandbox)
+```
 
-- kap_live_* — production/live keys
-- kap_test_* — test keys for development and smoke testing
+Dashboard endpoints use Clerk session JWTs:
 
-No OAuth, no redirects, no CAPTCHAs. Designed for autonomous agents.
+```
+Authorization: Bearer <Clerk session token>
+```
 
-## Endpoints
+---
 
-### Stocks
-GET /v1/stocks/quotes/{symbol}
-- Returns real-time stock quote with price, change, volume
-- Primary provider: FMP. Fallback: Twelve Data
-- symbol: ticker symbol (e.g. AAPL, MSFT, TSLA)
+## V1 Data Endpoints
 
-### Crypto
-GET /v1/crypto/prices/{symbol}
-- Returns real-time crypto price with 24h change, market cap, supply data
-- Provider: CoinGecko
-- symbol: CoinGecko coin ID (e.g. bitcoin, ethereum, solana) — NOT ticker symbol
+### GET /v1/stocks/quotes/{symbol}
+Returns a real-time stock quote for a ticker symbol (e.g. AAPL, TSLA, MSFT).
+Primary: FMP. Fallback: Twelve Data. Cache: 60s.
 
-### Prediction Markets
-GET /v1/polymarket/markets/{market_id}
-- Returns single prediction market with outcomes, implied probabilities, volume, liquidity, order book, resolution status
-- market_id: numeric ID or slug (e.g. bitcoin-all-time-high-by-september-30-2026)
+### GET /v1/crypto/prices/{symbol}
+Returns crypto price and market data for a CoinGecko coin ID (e.g. bitcoin, ethereum).
+Provider: CoinGecko. Cache: 30s.
 
-### Usage
-GET /v1/usage
-- Returns current usage and rate limit status for the authenticated API key
+### GET /v1/polymarket/markets/{market_id}
+Returns prediction market details, outcomes, and implied probabilities.
+Provider: Polymarket Gamma. Cache: 120s.
+
+### GET /v1/usage
+Returns the current API key's usage and rate limit status.
+
+---
+
+## V1 Dashboard / Account Endpoints (Clerk Auth)
+
+### GET /v1/account/me
+Returns: { user: { id, email, plan, subscription_status, billing_cycle? }, api_keys: { active_count, limit } }
+
+Plans: free | starter | builder | scale | enterprise
+
+### GET /v1/account/usage
+Returns: { plan, period: "monthly", used, limit, reset_at, rate_limit, overage_units, estimated_overage_cost_cents }
+
+### GET /v1/account/api-keys
+Returns: ApiKey[]
+
+### POST /v1/account/api-keys
+Body: { name?: string, mode?: 'live'|'test' }
+Returns: { key: ApiKey, raw_key } — raw_key shown once
+
+### DELETE /v1/account/api-keys/{id}
+Returns: 204 No Content
+
+### POST /v1/billing/checkout
+Body: { plan: 'starter'|'builder'|'scale', billing_cycle: 'monthly'|'yearly', success_url?: string, cancel_url?: string }
+Returns: { checkout_url } or 501 not_ready if billing is not configured
+
+### POST /v1/billing/customer-portal
+Body: { return_url }
+Returns: { portal_url } or 501 not_ready if billing is not configured
+
+#### Tier Reference
+
+| Tier       | Price            | Monthly Quota | RPM Limit | API Keys | Overage      |
+|------------|------------------|---------------|-----------|----------|--------------|
+| Free       | $0 forever       | 500           | 10        | 1        | Hard cap     |
+| Starter    | $19/mo or $190/yr| 50K           | 60        | 3        | $1.50/1K     |
+| Builder    | $49/mo or $490/yr| 200K          | 300       | 10       | $1.20/1K     |
+| Scale      | $149/mo or $1490/yr| 1M         | 1,000     | Unlimited| $0.80/1K     |
+| Enterprise | Custom           | Unlimited     | 5,000     | Unlimited| Custom       |
+
+---
 
 ## Response Envelope
 
-Every endpoint returns KapitResponse[T]:
+All V1 data endpoints use a standard envelope:
 
+```json
 {
-  "data": { ...asset-specific payload... },
+  "data": { ... },
   "meta": {
-    "request_id": "req_...",
-    "source": { "provider": "fmp", "primary_provider": "fmp", "fallback_used": false },
-    "freshness": { "as_of": "2026-01-01T00:00:00Z", "is_stale": false, "is_delayed": false, "cache_ttl_seconds": 60 },
-    "usage": { "cache": false },
-    "rate_limit": { "limit": 1000, "remaining": 987, "reset_at": "2026-01-02T00:00:00Z", "tier": "starter" }
+    "request_id": "...",
+    "fetched_at": "...",
+    "source": { "provider": "...", "primary_provider": "...", "fallback_provider": null },
+    "freshness": { "as_of": "...", "is_stale": false, "is_delayed": false, "cache_ttl_seconds": 60 },
+    "usage": { "request_units": 1, "cache": "miss", "billable": true },
+    "rate_limit": { "limit": 100, "remaining": 99, "reset_at": "..." },
+    "warning": null
   }
 }
+```
 
-Rate limit state is also returned in headers: X-RateLimit-Limit, X-RateLimit-Remaining, X-RateLimit-Reset
+### Soft Cap Over-age Warning
 
-## Error Envelope
+Paid tiers (starter/builder/scale) have soft monthly caps. When quota is exceeded, the response includes `meta.warning` instead of a 429 error:
 
-Every error returns KapitErrorResponse:
+```json
+{
+  "meta": {
+    "warning": {
+      "code": "monthly_quota_exceeded",
+      "message": "Monthly quota of 50,000 requests exceeded (65,000 used).",
+      "severity": "warning",
+      "recommended_action": "continue_with_overage_or_upgrade",
+      "upgrade_url": "https://kapit.dev/dashboard",
+      "monthly_limit": 50000,
+      "monthly_used": 65000,
+      "monthly_remaining": 0,
+      "overage_units": 15,
+      "overage_cost_cents": 2250,
+      "guidance": "Your starter plan includes 50,000 requests/month. You have used 65,000 requests (15 overage blocks of 1,000 requests). Estimated overage cost: $22.50 USD. You may continue with overage billing, reduce/cool down usage, upgrade your plan at https://kapit.dev/dashboard, or contact sales for enterprise pricing."
+    }
+  }
+}
+```
 
+`recommended_action` values:
+- `continue_with_overage_or_upgrade` — normal overage; agent may continue or suggest upgrade.
+- `upgrade_plan` — very high overage (>2x quota); strong nudge to upgrade.
+
+When `meta.warning` is null, the request is within quota or the tier has no monthly limit. Free-tier hard-cap exhaustion returns HTTP 429 instead.
+
+Dashboard endpoints return plain JSON objects (no envelope).
+
+---
+
+## Error Recovery
+
+Every error response includes structured recovery instructions for autonomous agents:
+
+```json
 {
   "error": {
     "code": "rate_limited",
-    "message": "Rate limit exceeded",
+    "message": "...",
     "doc_url": "https://docs.kapit.io/errors/rate-limited.md",
     "is_retriable": true,
     "retry_after_seconds": 60,
-    "param": null,
+    "alternative_action": "Upgrade your plan at https://kapit.dev/dashboard",
     "recovery": {
       "action": "wait_and_retry",
       "backoff_strategy": "fixed",
       "max_retries": 3,
       "retry_after_seconds": 60,
-      "guidance": "You have exceeded your tier's request limit. Wait for the window to reset or upgrade your plan."
+      "guidance": "..."
     },
     "context": {
       "method": "GET",
       "path": "/v1/stocks/quotes/AAPL",
       "status_code": 429,
-      "rate_limit": { "limit": 100, "remaining": 0, "reset_at": "2026-05-14T00:00:00Z", "tier": "free" }
+      "rate_limit": { "limit": 100, "remaining": 0, "reset_at": "...", "tier": "free" }
     }
-  }
+  },
+  "meta": { "request_id": "...", "fetched_at": "..." }
 }
+```
 
-## Rate Limits
+Key error codes:
+- `authentication_error` (401): Missing/invalid/revoked API key → action: authenticate
+- `rate_limited` (429): Kapit quota exhausted → action: wait_and_retry or upgrade_plan
+- `upstream_error` (502): Provider failed → action: wait_and_retry
+- `upstream_rate_limited` (502): Provider rate-limited Kapit → action: wait_and_retry
+- `symbol_not_found` (404): Ticker/coin ID not found → action: change_parameter
+- `upstream_timeout` (504): Provider timed out → action: wait_and_retry
+- `not_ready` (501): Dashboard/billing feature not configured → action: do_not_retry
 
-| Tier       | Daily Limit |
-|------------|-------------|
-| Free       | 100         |
-| Starter    | 1,000       |
-| Pro        | 10,000      |
-| Enterprise | Custom      |
+When rate_limited, agents should:
+1. Check remaining quota via GET /v1/usage
+2. Wait until reset_at before retrying
+3. Consider upgrading plan for higher limits
 
-When rate limited (429), the response includes retry_after_seconds — wait this long before retrying.
+---
 
-## Error Recovery Decision Table
+## Rate Limits by Tier
 
-| Code                   | HTTP | Retriable | Recovery Action      | Backoff     |
-|------------------------|------|-----------|----------------------|-------------|
-| invalid_request        | 400  | No        | change_parameter     | none        |
-| authentication_error   | 401  | No        | authenticate         | none        |
-| permission_denied      | 403  | No        | upgrade_plan         | none        |
-| rate_limited           | 429  | Yes       | wait_and_retry       | fixed       |
-| symbol_not_found       | 404  | No        | change_parameter     | none        |
-| market_not_found       | 404  | No        | change_parameter     | none        |
-| not_found              | 404  | No        | change_parameter     | none        |
-| upstream_error         | 502  | Yes       | wait_and_retry       | exponential |
-| upstream_rate_limited  | 502  | Yes       | wait_and_retry       | fixed       |
-| upstream_timeout       | 504  | Yes       | wait_and_retry       | exponential |
-| upstream_bad_response  | 502  | Yes       | retry                | fixed       |
-| internal_error         | 500  | Yes       | report_request_id    | exponential |
-| unsupported_asset_class| 400  | No        | do_not_retry         | none        |
+| Tier       | Monthly Quota | RPM  | Hard/Soft Cap |
+|------------|---------------|------|---------------|
+| free       | 500           | 10   | Hard cap      |
+| starter    | 50,000        | 60   | Soft cap      |
+| builder    | 200,000       | 300  | Soft cap      |
+| scale      | 1,000,000     | 1,000| Soft cap      |
+| enterprise | Unlimited     | 5,000| Custom        |
 
-Key decision points for agents:
-- Match on error.code (never error.message)
-- Check error.recovery.action for the recommended recovery strategy
-- When action is wait_and_retry, use recovery.retry_after_seconds and recovery.backoff_strategy
-- When action is report_request_id, capture meta.request_id for support
-- error.context.attempted_providers shows which upstream sources were tried
+---
 
-## Agent Usage Notes
+## API Key Modes
 
-- Always check meta.rate_limit.remaining before making batch requests
-- Respect retry_after_seconds on 429 and 502 errors
-- Match on error.code for programmatic switching — never parse error.message
-- Follow error.recovery.action for automatic self-correction
-- Use meta.freshness.is_stale to decide when to re-fetch
-- Cache responses using meta.freshness.cache_ttl_seconds
-- Do not retry non-retriable errors (400, 401, 403, 404) — fix the request instead
-- Crypto symbol uses CoinGecko coin IDs (bitcoin) not tickers (BTC)
-- Free-tier stock data may be 15 minutes delayed — check meta.freshness.is_delayed
+- `kap_test_...`: Sandbox mode. Full API access but prefixed as test.
+- `kap_live_...`: Production mode. Full API access with live prefix.
 
-## Documentation
+---
 
-- API Reference (Scalar): https://kapit.dev/docs
-- OpenAPI Spec: /openapi.json
-- Error Docs: https://docs.kapit.io/errors/
-- Get API Key: https://kapit.dev/signup
+## Asset Classes
+
+- `stock`: Stocks (FMP / Twelve Data)
+- `crypto`: Cryptocurrencies (CoinGecko)
+- `prediction_market`: Prediction markets (Polymarket Gamma)

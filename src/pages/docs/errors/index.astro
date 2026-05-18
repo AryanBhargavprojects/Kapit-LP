@@ -1,0 +1,91 @@
+---
+export const prerender = true;
+import { getCollection } from 'astro:content';
+
+const entries = await getCollection('errors');
+
+const ERROR_META: Record<string, { status: string; color: string; retriable: boolean }> = {
+  'authentication-error':    { status: '401', color: '#F87171', retriable: false },
+  'permission-denied':       { status: '403', color: '#F87171', retriable: false },
+  'not-found':               { status: '404', color: '#A1A1A1', retriable: false },
+  'symbol-not-found':        { status: '404', color: '#A1A1A1', retriable: false },
+  'market-not-found':        { status: '404', color: '#A1A1A1', retriable: false },
+  'invalid-request':         { status: '400', color: '#F59E0B', retriable: false },
+  'unsupported-asset-class': { status: '400', color: '#F59E0B', retriable: false },
+  'rate-limited':            { status: '429', color: '#F59E0B', retriable: true  },
+  'not-ready':               { status: '501', color: '#6E6E6E', retriable: false },
+  'upstream-error':          { status: '502', color: '#60A5FA', retriable: true  },
+  'upstream-rate-limited':   { status: '502', color: '#60A5FA', retriable: true  },
+  'upstream-bad-response':   { status: '502', color: '#60A5FA', retriable: true  },
+  'upstream-timeout':        { status: '504', color: '#60A5FA', retriable: true  },
+  'internal-error':          { status: '500', color: '#F87171', retriable: true  },
+};
+
+const sorted = entries.sort((a, b) => {
+  const sa = ERROR_META[a.slug]?.status ?? '999';
+  const sb = ERROR_META[b.slug]?.status ?? '999';
+  return sa.localeCompare(sb);
+});
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Error Reference — Kapit Docs</title>
+    <meta name="description" content="Complete error code reference for the Kapit API. Structured recovery guidance for every error." />
+    <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  </head>
+  <body style="background:#0A0A0A;color:#EDEDED;font-family:Inter,sans-serif;margin:0;line-height:1.6;">
+
+    <!-- Top bar -->
+    <nav style="position:fixed;top:0;left:0;right:0;height:48px;background:#0A0A0A;border-bottom:1px solid #262626;z-index:100;display:flex;align-items:center;padding:0 24px;gap:12px;">
+      <a href="/" style="display:flex;align-items:center;">
+        <img src="/kapit_logo.png" alt="Kapit" style="height:28px;width:auto;" />
+      </a>
+      <span style="color:#333;font-size:14px;">/</span>
+      <a href="/docs" style="color:#A1A1A1;font-size:13px;font-family:'JetBrains Mono',monospace;text-decoration:none;">docs</a>
+      <span style="color:#333;font-size:14px;">/</span>
+      <span style="color:#EDEDED;font-size:13px;font-family:'JetBrains Mono',monospace;">errors</span>
+    </nav>
+
+    <main style="max-width:800px;margin:0 auto;padding:80px 24px 64px;">
+      <div style="margin-bottom:2.5rem;">
+        <h1 style="font-size:1.875rem;font-weight:700;color:#EDEDED;margin-bottom:0.75rem;">Error Reference</h1>
+        <p style="color:#A1A1A1;font-size:0.9375rem;">Every error the Kapit API can return includes a structured <code style="font-family:'JetBrains Mono',monospace;font-size:0.8125rem;background:#111111;color:#A78BFA;padding:0.15em 0.4em;border-radius:0.25rem;border:1px solid #262626;">recovery</code> object so agents know exactly what to do next.</p>
+      </div>
+
+      <div style="display:flex;flex-direction:column;gap:0.75rem;">
+        {sorted.map(entry => {
+          const meta = ERROR_META[entry.id];
+          const title = entry.id.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+          return (
+            <a
+              href={`/docs/errors/${entry.id}`}
+              style="display:flex;align-items:center;gap:1rem;padding:1rem 1.25rem;background:#111111;border:1px solid #262626;border-radius:0.75rem;text-decoration:none;transition:border-color 0.15s;"
+              onmouseover="this.style.borderColor='#3A3A3A'"
+              onmouseout="this.style.borderColor='#262626'"
+            >
+              <span style={`font-family:'JetBrains Mono',monospace;font-size:0.75rem;font-weight:600;color:${meta?.color ?? '#A1A1A1'};background:#1C1C1C;padding:0.2em 0.6em;border-radius:0.25rem;flex-shrink:0;min-width:42px;text-align:center;`}>
+                {meta?.status ?? '???'}
+              </span>
+              <span style="flex:1;">
+                <span style="color:#EDEDED;font-weight:500;font-size:0.9375rem;">{title}</span>
+                <br />
+                <span style="font-family:'JetBrains Mono',monospace;font-size:0.75rem;color:#6E6E6E;">{entry.id}</span>
+              </span>
+              <span style={`font-size:0.6875rem;font-weight:500;padding:0.2em 0.6em;border-radius:9999px;flex-shrink:0;${meta?.retriable ? 'background:#0D1A0D;color:#4ADE80;' : 'background:#1C1C1C;color:#6E6E6E;'}`}>
+                {meta?.retriable ? 'retriable' : 'non-retriable'}
+              </span>
+              <span style="color:#6E6E6E;font-size:0.875rem;flex-shrink:0;">→</span>
+            </a>
+          );
+        })}
+      </div>
+    </main>
+  </body>
+</html>

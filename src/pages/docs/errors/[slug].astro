@@ -1,0 +1,75 @@
+---
+export const prerender = true;
+
+import { getCollection, render } from 'astro:content';
+
+export async function getStaticPaths() {
+  const entries = await getCollection('errors');
+  return entries.map(entry => ({ params: { slug: entry.id }, props: { entry } }));
+}
+
+const { entry } = Astro.props;
+const { Content, headings } = await render(entry);
+
+const title = headings[0]?.text ?? entry.id;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title} — Kapit Docs</title>
+    <meta name="description" content={`Kapit API error reference: ${title}`} />
+    <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+    <style>
+      *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+      body { background: #0A0A0A; color: #EDEDED; font-family: Inter, sans-serif; line-height: 1.6; }
+
+      .prose h1 { font-size: 1.875rem; font-weight: 700; color: #EDEDED; margin-bottom: 1rem; line-height: 1.2; }
+      .prose h2 { font-size: 1.25rem; font-weight: 600; color: #EDEDED; margin-top: 2rem; margin-bottom: 0.75rem; padding-bottom: 0.5rem; border-bottom: 1px solid #1F1F1F; }
+      .prose h3 { font-size: 1rem; font-weight: 600; color: #EDEDED; margin-top: 1.5rem; margin-bottom: 0.5rem; }
+      .prose p { color: #A1A1A1; margin-bottom: 1rem; }
+      .prose strong { color: #EDEDED; font-weight: 600; }
+      .prose em { color: #A1A1A1; font-style: italic; }
+      .prose a { color: #7C3AED; text-decoration: none; }
+      .prose a:hover { color: #8B5CF6; text-decoration: underline; }
+      .prose ul, .prose ol { color: #A1A1A1; padding-left: 1.5rem; margin-bottom: 1rem; }
+      .prose li { margin-bottom: 0.375rem; }
+      .prose li strong { color: #EDEDED; }
+      .prose blockquote { border-left: 3px solid #7C3AED; padding-left: 1rem; color: #6E6E6E; margin: 1.25rem 0; font-style: italic; }
+      .prose blockquote strong { color: #A1A1A1; }
+      .prose pre { background: #111111; border: 1px solid #262626; border-radius: 0.5rem; padding: 1rem 1.25rem; overflow-x: auto; margin: 1.25rem 0; }
+      .prose pre code { font-family: 'JetBrains Mono', monospace; font-size: 0.8125rem; color: #EDEDED; background: none; padding: 0; border-radius: 0; }
+      .prose code { font-family: 'JetBrains Mono', monospace; font-size: 0.8125rem; background: #111111; color: #A78BFA; padding: 0.15em 0.4em; border-radius: 0.25rem; border: 1px solid #262626; }
+      .prose table { width: 100%; border-collapse: collapse; margin: 1.25rem 0; font-size: 0.875rem; }
+      .prose th { text-align: left; padding: 0.625rem 0.875rem; background: #111111; color: #EDEDED; font-weight: 600; border: 1px solid #262626; }
+      .prose td { padding: 0.625rem 0.875rem; color: #A1A1A1; border: 1px solid #1F1F1F; }
+      .prose td code { font-size: 0.75rem; }
+      .prose hr { border: none; border-top: 1px solid #262626; margin: 2rem 0; }
+    </style>
+  </head>
+  <body>
+    <!-- Top bar -->
+    <nav style="position:fixed;top:0;left:0;right:0;height:48px;background:#0A0A0A;border-bottom:1px solid #262626;z-index:100;display:flex;align-items:center;padding:0 24px;gap:12px;">
+      <a href="/" style="display:flex;align-items:center;">
+        <img src="/kapit_logo.png" alt="Kapit" style="height:28px;width:auto;" />
+      </a>
+      <span style="color:#333;font-size:14px;">/</span>
+      <a href="/docs" style="color:#A1A1A1;font-size:13px;font-family:'JetBrains Mono',monospace;text-decoration:none;">docs</a>
+      <span style="color:#333;font-size:14px;">/</span>
+      <a href="/docs/errors" style="color:#A1A1A1;font-size:13px;font-family:'JetBrains Mono',monospace;text-decoration:none;">errors</a>
+      <span style="color:#333;font-size:14px;">/</span>
+      <span style="color:#EDEDED;font-size:13px;font-family:'JetBrains Mono',monospace;">{entry.id}</span>
+    </nav>
+
+    <main style="max-width:800px;margin:0 auto;padding:80px 24px 64px;">
+      <article class="prose">
+        <Content />
+      </article>
+    </main>
+  </body>
+</html>

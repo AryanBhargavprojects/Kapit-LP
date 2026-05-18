@@ -1,8 +1,8 @@
 import { c as createComponent } from "./astro-component_C-dX4Z7q.mjs";
 import "piccolore";
 import { b3 as renderHead, b7 as renderTemplate } from "./params-and-props_BO-CuAf5.mjs";
-import { r as renderComponent } from "./entrypoint_DtbYlMLS.mjs";
-import { u as useAuth, g as getAccountMe, e as getAccountUsageWithMeta, K as KapitDashboardApiError, b as createCustomerPortal, N as NavbarAuthActions } from "./kapit-dashboard-api_BX_kN4dJ.mjs";
+import { r as renderComponent } from "./entrypoint_NqyTKoqU.mjs";
+import { u as useAuth, g as getAccountMe, e as getAccountUsageWithMeta, K as KapitDashboardApiError, b as createCustomerPortal, N as NavbarAuthActions } from "./kapit-dashboard-api_Dktmrfm7.mjs";
 import { jsxs, jsx, Fragment } from "react/jsx-runtime";
 import { useState, useEffect, useRef } from "react";
 import { Q as QuotaWarningBanner } from "./QuotaWarningBanner_f0Ytz45_.mjs";
@@ -762,7 +762,7 @@ const $$Billing = createComponent(($$result, $$props, $$slots) => {
   Astro2.self = $$Billing;
   const { userId } = Astro2.locals.auth();
   if (!userId) return Astro2.redirect("/");
-  return renderTemplate`<html lang="en" class="dark"> <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="icon" type="image/svg+xml" href="/favicon.svg"><title>Billing — Kapit</title><meta name="robots" content="noindex"><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">${renderHead()}</head> <body class="min-h-screen bg-[#0A0A0A] text-[#EDEDED] antialiased"> <nav class="fixed top-0 left-0 right-0 z-50 bg-[#0A0A0A] border-b border-[#262626] h-14"> <div class="max-w-5xl mx-auto px-6 h-full flex items-center justify-between"> <a href="/" class="font-bold text-lg text-[#EDEDED] tracking-tight" style="font-family: Inter, sans-serif;">
+  return renderTemplate`<html lang="en" class="dark"> <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="icon" type="image/x-icon" href="/favicon.ico"><title>Billing — Kapit</title><meta name="robots" content="noindex"><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">${renderHead()}</head> <body class="min-h-screen bg-[#0A0A0A] text-[#EDEDED] antialiased"> <nav class="fixed top-0 left-0 right-0 z-50 bg-[#0A0A0A] border-b border-[#262626] h-14"> <div class="max-w-5xl mx-auto px-6 h-full flex items-center justify-between"> <a href="/" class="font-bold text-lg text-[#EDEDED] tracking-tight" style="font-family: Inter, sans-serif;">
 kapit
 </a> <div class="flex items-center gap-6"> <a href="/dashboard" class="text-sm text-[#A1A1A1] hover:text-[#EDEDED] transition-colors">Dashboard</a> <a href="/docs" class="text-sm text-[#A1A1A1] hover:text-[#EDEDED] transition-colors">Docs</a> ${renderComponent($$result, "NavbarAuthActions", NavbarAuthActions, { "client:load": true, "client:component-hydration": "load", "client:component-path": "/Users/aryanbhargav/Desktop/LandingPages/Kapit_LP/src/components/NavbarAuthActions.tsx", "client:component-export": "default" })} </div> </div> </nav> <main class="max-w-5xl mx-auto px-6 pt-24 pb-16"> <div class="mb-8"> <h1 class="text-2xl font-bold text-[#EDEDED]">Billing</h1> <p class="text-[#6E6E6E] mt-1 text-sm">
 Manage your plan, payment methods, and invoices.
