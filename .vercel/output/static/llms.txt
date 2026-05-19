@@ -36,6 +36,18 @@ Provider: CoinGecko. Cache: 30s.
 Returns prediction market details, outcomes, and implied probabilities.
 Provider: Polymarket Gamma. Cache: 120s.
 
+### GET /v1/polymarket/search?query=...&limit=...
+Search prediction markets by natural-language query (e.g. "US Iran war", "Bitcoin ATH 2026").
+Returns a ranked list of candidate markets with slug, outcomes, volume, and a `details_endpoint`.
+Call `GET /v1/polymarket/markets/{slug}` on the result's `details_endpoint` for full market data.
+Provider: Polymarket Gamma. Cache: 60s.
+
+**Agent workflow for Polymarket:** If you don't know the exact slug or market ID, always call
+`/v1/polymarket/search` first with a natural-language query. Pick the best result from the
+returned list (first result is usually the best match), then call
+`/v1/polymarket/markets/{slug}` using the `details_endpoint` from that result to get full
+market details including order book, resolution status, and complete metadata.
+
 ### GET /v1/usage
 Returns the current API key's usage and rate limit status.
 

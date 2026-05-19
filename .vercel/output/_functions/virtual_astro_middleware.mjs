@@ -1,4 +1,4 @@
-import { b as createRouteMatcher, a as clerkMiddleware } from "./chunks/index_BKeONVeX.mjs";
+import { b as createRouteMatcher, a as clerkMiddleware } from "./chunks/index_CcfOlD2w.mjs";
 import { bc as sequence } from "./chunks/params-and-props_BO-CuAf5.mjs";
 const isProtectedRoute = createRouteMatcher(["/dashboard(.*)"]);
 const onRequest$1 = clerkMiddleware((auth, context, next) => {
