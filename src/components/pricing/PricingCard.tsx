@@ -177,12 +177,31 @@ export default function PricingCard({
           </span>
           <span className="text-[#ADADAD]">{tier.support}</span>
         </div>
-        <div className="flex items-start gap-2">
-          <span className={isHighlighted ? 'text-[#7C3AED]' : 'text-[#00D26A]'}>
-            <CheckIcon />
-          </span>
-          <span className="text-[#ADADAD]">{tier.sla}</span>
-        </div>
+        {tier.sla ? (
+          <div className="flex items-start gap-2">
+            <span className={isHighlighted ? 'text-[#7C3AED]' : 'text-[#00D26A]'}>
+              <CheckIcon />
+            </span>
+            <span className="text-[#ADADAD]">{tier.sla}</span>
+          </div>
+        ) : (
+          <div className="flex items-start gap-2">
+            <span className="text-[#3A3A3A] shrink-0 mt-0.5">
+              <svg width="14" height="14" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" aria-hidden="true">
+                <line x1="4" y1="10" x2="16" y2="10" />
+              </svg>
+            </span>
+            <span className="text-[#4A4A4A] text-sm">No uptime SLA</span>
+          </div>
+        )}
+        {tier.extraFeature && (
+          <div className="flex items-start gap-2">
+            <span className={isHighlighted ? 'text-[#7C3AED]' : 'text-[#00D26A]'}>
+              <CheckIcon />
+            </span>
+            <span className="text-[#ADADAD]">{tier.extraFeature}</span>
+          </div>
+        )}
 
         <div className="pt-3 mt-3 border-t border-[#1F1F1F] space-y-2">
           {SHARED_FEATURES.map((f) => (

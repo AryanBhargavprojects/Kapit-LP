@@ -11,7 +11,8 @@ export interface PricingTier {
   rateLimit: string;
   apiKeys: string;
   support: string;
-  sla: string;
+  sla: string | null;
+  extraFeature?: string;
   highlighted?: boolean;
 }
 
@@ -27,7 +28,7 @@ export const PRICING_TIERS: PricingTier[] = [
     rateLimit: '10 req/min',
     apiKeys: '1',
     support: 'Community / docs',
-    sla: 'None',
+    sla: null,
   },
   {
     id: 'starter',
@@ -40,7 +41,8 @@ export const PRICING_TIERS: PricingTier[] = [
     rateLimit: '60 req/min',
     apiKeys: '3',
     support: 'Email, 72hr',
-    sla: 'None',
+    sla: null,
+    extraFeature: 'Quota alert emails',
   },
   {
     id: 'builder',
@@ -76,5 +78,5 @@ export const SHARED_FEATURES: string[] = [
   'KapitResponse envelope',
   'Structured recovery errors',
   '/llms.txt',
-  'Source / provider metadata',
+  'Data source & provider labels',
 ];
