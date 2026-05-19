@@ -1,6 +1,7 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import Navbar from '../components/Navbar.astro';
+import AnnouncementBar from '../components/AnnouncementBar.astro';
 import Hero from '../components/Hero.astro';
 import AgentCompatibility from '../components/AgentCompatibility.astro';
 import MachineView from '../components/MachineView.astro';
@@ -8,7 +9,13 @@ import MachineView from '../components/MachineView.astro';
 export const prerender = true;
 ---
 
+<style is:global>
+  /* Push navbar below announcement bar — homepage only */
+  body nav.fixed { top: 2.5rem; }
+</style>
+
 <Layout>
+  <AnnouncementBar />
   <Navbar />
   <main id="human-content">
     <Hero />

@@ -1,0 +1,27 @@
+---
+---
+<div class="fixed top-0 left-0 right-0 z-[60] h-10 bg-[#7C3AED] flex items-center justify-center px-4 gap-3">
+  <span class="text-sm text-white/90" style="font-family: Inter, sans-serif;">
+    ✦ 500 free requests/day — no credit card required.
+  </span>
+  <button
+    id="ann-bar-cta"
+    class="text-sm text-white font-semibold underline underline-offset-2 hover:no-underline whitespace-nowrap cursor-pointer bg-transparent border-none"
+    style="font-family: Inter, sans-serif;"
+  >
+    Get your API key →
+  </button>
+</div>
+
+<script>
+  document.getElementById('ann-bar-cta')?.addEventListener('click', () => {
+    // @ts-ignore
+    const clerk = window.Clerk;
+    if (!clerk) { window.location.href = '/dashboard'; return; }
+    if (clerk.user) {
+      window.location.href = '/dashboard';
+    } else {
+      clerk.openSignIn({ afterSignInUrl: '/dashboard', afterSignUpUrl: '/dashboard' });
+    }
+  });
+</script>
