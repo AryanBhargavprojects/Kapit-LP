@@ -21,10 +21,22 @@ const {
     <meta name="generator" content={Astro.generator} />
     <title>{title}</title>
     <meta name="description" content={description} />
+    <!-- Open Graph -->
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
     <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://kapit.dev" />
+    <meta property="og:image" content="https://kapit.dev/og.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="Kapit — Financial data, built for agents." />
+    <meta property="og:site_name" content="Kapit" />
+    <!-- Twitter / X -->
     <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content="https://kapit.dev/og.png" />
+    <meta name="twitter:image:alt" content="Kapit — Financial data, built for agents." />
     <!-- AI/Agent discoverability -->
     <link rel="alternate" type="text/plain" href="/?view=machine" title="Machine-readable version" />
     <meta name="ai-content" content="machine-readable-available" />
