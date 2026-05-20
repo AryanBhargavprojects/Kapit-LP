@@ -6,9 +6,11 @@ import tailwindcss from '@tailwindcss/vite';
 import clerk from '@clerk/astro';
 import { dark } from '@clerk/ui/themes';
 
+import cloudflare from '@astrojs/cloudflare';
+
 export default defineConfig({
   output: 'server',
-  adapter: vercel(),
+  adapter: cloudflare(),
   integrations: [
     clerk({
       appearance: {
